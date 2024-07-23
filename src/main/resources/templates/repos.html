@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>GitHub Repositories</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+    <script>
+        function goBack() {
+            window.history.back();
+        }
+    </script>
+</head>
+<body>
+<div class="container">
+    <h1>Repositories for <span th:text="${username}"></span></h1>
+    <div th:if="${reposJson != null}">
+        <h2>Repositories</h2>
+        <pre th:utext="${reposJson}"></pre>
+    </div>
+    <button class="back-button" onclick="goBack()">Back</button>
+</div>
+</body>
+</html>

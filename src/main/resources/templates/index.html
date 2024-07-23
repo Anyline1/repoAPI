@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>GitHub Repositories</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+</head>
+<body>
+<div class="container">
+    <h1>GitHub Repositories</h1>
+    <form action="#" th:action="@{/repos}" method="post">
+        <div>
+            <label for="username">GitHub Username:</label>
+            <input type="text" id="username" name="username" required />
+        </div>
+        <div>
+            <button type="submit">Get Repos</button>
+        </div>
+    </form>
+</div>
+</body>
+</html>

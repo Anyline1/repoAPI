@@ -1,5 +1,6 @@
 package ru.anyline.repoapi.service;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -16,6 +17,7 @@ public interface GitHubClient {
 
     @Getter
     @Setter
+    @JsonIgnoreProperties(ignoreUnknown = true)
     class GitHubRepo {
         private String name;
         private String html_url;

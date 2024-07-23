@@ -29,7 +29,7 @@ public class GitHubService {
             repository.setUsername(username);
             repository.setRepoName(repo.getName());
             repository.setRepoUrl(repo.getHtml_url());
-            repository.setGistsUrl(repo.getTeams_url());
+            repository.setTeamsUrl(repo.getTeams_url());
             repository.setCachedAt(LocalDateTime.now());
             return repository;
         }).collect(Collectors.toList());
