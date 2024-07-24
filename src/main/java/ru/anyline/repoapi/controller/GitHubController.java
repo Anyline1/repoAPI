@@ -1,11 +1,12 @@
 package ru.anyline.repoapi.controller;
 
+import ru.anyline.repoapi.model.Repository;
+import ru.anyline.repoapi.service.GitHubService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import ru.anyline.repoapi.model.Repository;
-import ru.anyline.repoapi.service.GitHubService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
 
@@ -37,7 +38,10 @@ public class GitHubController {
         model.addAttribute("reposJson", reposJson);
         return "repos";
     }
-
+    @GetMapping("/login")
+    public String login() {
+        return "login";
+    }
 
 
 }
