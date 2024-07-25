@@ -6,8 +6,13 @@
     <link rel="stylesheet" th:href="@{/css/style.css}" />
 </head>
 <body>
-<div class="container">
+<div class="header">
     <h1>GitHub Repositories</h1>
+    <form th:action="@{/logout}" method="post" style="display: inline;">
+        <button type="submit">Logout</button>
+    </form>
+</div>
+<div class="container">
     <form action="#" th:action="@{/repos}" method="post">
         <div>
             <label for="username">GitHub Username:</label>

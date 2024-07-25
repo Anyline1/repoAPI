@@ -1,6 +1,9 @@
 package ru.anyline.repoapi.controller;
 
+import org.springframework.web.servlet.ModelAndView;
 import ru.anyline.repoapi.model.Repository;
+import ru.anyline.repoapi.service.GitHubClient;
+import ru.anyline.repoapi.service.GitHubClient.GitHubRepo;
 import ru.anyline.repoapi.service.GitHubService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
 
 
+import java.io.IOException;
 import java.util.List;
 
 @Controller
@@ -26,8 +30,17 @@ public class GitHubController {
     }
 
     @PostMapping("/repos")
-    public String getRepos(@RequestParam("username") String username) {
-        return "redirect:/repos/" + username;
+    public ModelAndView getRepos(@RequestParam String username) throws IOException {
+        // Получите список репозиториев из сервиса
+        List<Repository> repos = gitHubService.getRepositories(username);
+
+        // Преобразуйте список репозиториев в формат JSON с переносами
+        String reposJson = gitHubService.convertReposToJson(repos);
+
+        ModelAndView modelAndView = new ModelAndView("repos");
+        modelAndView.addObject("username", username);
+        modelAndView.addObject("reposJson", reposJson);
+        return modelAndView;
     }
 
     @GetMapping("/repos/{username}")
