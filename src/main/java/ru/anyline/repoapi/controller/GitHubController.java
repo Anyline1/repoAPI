@@ -31,10 +31,10 @@ public class GitHubController {
 
     @PostMapping("/repos")
     public ModelAndView getRepos(@RequestParam String username) throws IOException {
-        // Получите список репозиториев из сервиса
+
         List<Repository> repos = gitHubService.getRepositories(username);
 
-        // Преобразуйте список репозиториев в формат JSON с переносами
+
         String reposJson = gitHubService.convertReposToJson(repos);
 
         ModelAndView modelAndView = new ModelAndView("repos");

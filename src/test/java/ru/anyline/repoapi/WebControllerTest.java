@@ -36,10 +36,11 @@ public class WebControllerTest {
     @Test
     @WithMockUser(username = "user", password = "password", roles = "USER")
     public void testGetRepos() throws Exception {
-        mockMvc.perform(post("/repos")
-                        .param("username", "Anyline1"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/repos/Anyline1"));
+        mockMvc.perform(post("/repos").param("username", "Anyline1"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("repos"))
+                .andExpect(model().attributeExists("username"))
+                .andExpect(model().attributeExists("reposJson"));
     }
 
     @Test
