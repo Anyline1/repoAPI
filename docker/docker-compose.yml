@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  app:
+    image: 1483391a2751
+    container_name: repoAPI
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:h2:mem:repo
+      - SPRING_DATASOURCE_USERNAME=sa
+      - SPRING_DATASOURCE_PASSWORD=password
+    ports:
+      - "8080:8080"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
