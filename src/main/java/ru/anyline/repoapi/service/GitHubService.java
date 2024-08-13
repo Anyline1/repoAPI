@@ -1,57 +1,47 @@
 package ru.anyline.repoapi.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import ru.anyline.repoapi.repository.RepositoryRepository;
-import ru.anyline.repoapi.model.Repository;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
+import ru.anyline.repoapi.repository.Repository;
+import ru.anyline.repoapi.model.UserRepos;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 @Service
 public class GitHubService {
 
     @Autowired
-    private RepositoryRepository repositoryRepository;
+    private Repository repository;
 
-    @Autowired
-    private GitHubClient gitHubClient;
+    private final RestTemplate restTemplate = new RestTemplate();
 
+    public List<UserRepos> getRepositories(String username) {
 
-    private final ObjectMapper objectMapper;
-
-    public GitHubService(ObjectMapper objectMapper) {
-        this.objectMapper = new ObjectMapper();
-        // Настройка PrettyPrinter
-        this.objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
-    }
-
-    public String convertReposToJson(List<Repository> repos) throws IOException, JsonProcessingException {
-        return objectMapper.writeValueAsString(repos);
-    }
-
-    public List<Repository> getRepositories(String username) {
-        List<Repository> cachedRepos = repositoryRepository.findByUsername(username);
+        List<UserRepos> cachedRepos = repository.findByUsername(username);
         if (!cachedRepos.isEmpty()) {
             return cachedRepos;
         }
 
-        List<Repository> repos = gitHubClient.listRepos(username).stream().map(repo -> {
-            Repository repository = new Repository();
-            repository.setUsername(username);
-            repository.setRepoName(repo.getName());
-            repository.setRepoUrl(repo.getHtml_url());
-            repository.setTeamsUrl(repo.getTeams_url());
-//            repository.setCachedAt(LocalDateTime.now());
-            return repository;
-        }).collect(Collectors.toList());
+        String url = "https://api.github.com/users/" + username + "/repos";
+        ResponseEntity<UserRepos[]> response = restTemplate.getForEntity(url, UserRepos[].class);
 
-        repositoryRepository.saveAll(repos);
-        return repos;
+        List<UserRepos> repositories = Arrays.asList(Objects.requireNonNull(response.getBody()));
+        repositories.forEach(repo -> {
+            repo.setUsername(username);
+            repo.setName(repo.getName());
+            repo.setHtml_url(repo.getHtml_url());
+            repo.setTeams_url(repo.getTeams_url());
+        });
+        repository.saveAll(repositories);
+
+        return repositories;
+    }
+
+    public List<UserRepos> getAllRepos(){
+        return repository.findAll();
     }
 }
