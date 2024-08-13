@@ -6,6 +6,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import ru.anyline.repoapi.controller.GitHubController;
 import ru.anyline.repoapi.service.GitHubService;
 
@@ -35,7 +36,8 @@ public class MockTests {
         when(gitHubService.getRepositories("testuser")).thenReturn(Collections.emptyList());
 
         mockMvc.perform(get("/repos/testuser"))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$").isArray());
     }
     @Test
     public void testAccessDeniedForUnauthenticatedUsers() throws Exception {

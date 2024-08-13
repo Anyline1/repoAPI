@@ -24,8 +24,9 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/**","/swagger-ui","/api-docs").authenticated()
-
+                        .anyRequest().permitAll()
                 )
+                .oauth2Login(withDefaults())
                 .formLogin(withDefaults())
                 .logout(withDefaults())
                 .csrf(csrf -> csrf

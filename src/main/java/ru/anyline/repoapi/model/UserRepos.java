@@ -13,11 +13,12 @@ public class UserRepos {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String username;
     private String name;
     private String html_url;
     private String teams_url;
-//    private LocalDateTime cachedAt;
+
 
 
 }

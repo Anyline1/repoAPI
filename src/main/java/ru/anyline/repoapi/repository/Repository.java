@@ -6,5 +6,6 @@ import ru.anyline.repoapi.model.UserRepos;
 import java.util.List;
 
 public interface Repository extends JpaRepository<UserRepos, Long> {
+
     List<UserRepos> findByUsername(String username);
 }

@@ -1,9 +1,9 @@
 package ru.anyline.repoapi.service;
 
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
 import ru.anyline.repoapi.repository.Repository;
 import ru.anyline.repoapi.model.UserRepos;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -44,4 +44,5 @@ public class GitHubService {
     public List<UserRepos> getAllRepos(){
         return repository.findAll();
     }
+
 }
