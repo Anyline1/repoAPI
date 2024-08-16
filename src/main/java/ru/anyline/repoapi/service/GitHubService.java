@@ -14,8 +14,12 @@ import java.util.Objects;
 @Service
 public class GitHubService {
 
-    @Autowired
-    private Repository repository;
+
+    private final Repository repository;
+
+    public GitHubService(Repository repository){
+        this.repository = repository;
+    }
 
     private final RestTemplate restTemplate = new RestTemplate();
 
