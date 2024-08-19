@@ -1,13 +1,9 @@
 package ru.anyline.repoapi.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
-//import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import ru.anyline.repoapi.model.UserRepos;
 import ru.anyline.repoapi.service.GitHubService;
 import org.springframework.web.bind.annotation.*;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
 
 import java.util.List;
     @RestController
@@ -18,8 +14,11 @@ import java.util.List;
     )
     public class GitHubController {
 
-        @Autowired
-        private GitHubService gitHubService;
+        private final GitHubService gitHubService;
+
+        public GitHubController(GitHubService gitHubService){
+            this.gitHubService = gitHubService;
+        }
 
         @GetMapping("/repos/{username}")
         @Tag(
