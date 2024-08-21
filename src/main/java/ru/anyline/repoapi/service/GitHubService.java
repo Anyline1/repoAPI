@@ -17,6 +17,7 @@ public class GitHubService {
         this.webClient = webClientBuilder.baseUrl("https://api.github.com").build();
         this.redisRepository = redisRepository;
     }
+
     @Cacheable(value = "repos", key = "#username")
     public Flux<GitHubRepository> getPublicRepositories(String username) {
         return this.webClient.get()
@@ -26,6 +27,7 @@ public class GitHubService {
                 .doOnNext(redisRepository::save);
     }
 
+    @Cacheable(value = "repos", key = "#username")
     public Flux<GitHubRepository> getPrivateRepositories(String username, String token){
                 return this.webClient.get()
                         .uri("/user/repos?visibility=private")
