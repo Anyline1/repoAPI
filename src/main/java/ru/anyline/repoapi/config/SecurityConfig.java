@@ -26,10 +26,10 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/**","/swagger-ui","/api-docs").authenticated()
+                        .requestMatchers("/**","/swagger").authenticated()
                         .anyRequest().permitAll()
                 )
-                .formLogin(withDefaults())
+                .oauth2Login(withDefaults())
                 .logout(withDefaults())
                 .csrf(csrf -> csrf
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
