@@ -18,13 +18,16 @@ public class GitHubService {
         this.redisRepository = redisRepository;
     }
 
-    @Cacheable(value = "repos", key = "#username")
+    @Cacheable(value = "user", key = "#username")
     public Flux<GitHubRepository> getPublicRepositories(String username) {
         return this.webClient.get()
                 .uri("/users/{username}/repos", username)
                 .retrieve()
                 .bodyToFlux(GitHubRepository.class)
-                .doOnNext(redisRepository::save);
+                .doOnNext(repo -> {
+                    repo.setUsername(username); // Assuming a setter method for username
+                    redisRepository.save(repo);
+                });
     }
 
     @Cacheable(value = "repos", key = "#username")
