@@ -10,8 +10,8 @@ spring:
       client:
         registration:
           github:
-            client-id: your-client-id
-            client-secret: your-client-secret
+            client-id: //
+            client-secret: //
             scope: read:user, repo
             redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
             client-name: GitHub
