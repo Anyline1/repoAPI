@@ -1,5 +1,6 @@
 package ru.anyline.repoapi.service;
 
+
 import lombok.AllArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import ru.anyline.repoapi.model.GitHubRepository;
@@ -35,6 +36,5 @@ public class GitHubService {
                         .retrieve()
                         .bodyToFlux(GitHubRepository.class)
                         .doOnNext(redisRepository::save);
-
             }
 }
