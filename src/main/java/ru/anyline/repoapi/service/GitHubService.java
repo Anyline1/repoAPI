@@ -1,52 +1,44 @@
 package ru.anyline.repoapi.service;
 
-import ru.anyline.repoapi.repository.Repository;
-import ru.anyline.repoapi.model.UserRepos;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
+import ru.anyline.repoapi.model.GitHubRepository;
 import org.springframework.stereotype.Service;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
+import ru.anyline.repoapi.repository.RedisRepository;
 
 @Service
 public class GitHubService {
 
+    private final WebClient webClient;
+    private final RedisRepository redisRepository;
 
-    private final Repository repository;
-
-    public GitHubService(Repository repository){
-        this.repository = repository;
+    public GitHubService(WebClient webClient,
+                         RedisRepository redisRepository) {
+        this.webClient = webClient;
+        this.redisRepository = redisRepository;
     }
 
-    private final RestTemplate restTemplate = new RestTemplate();
-
-    public List<UserRepos> getRepositories(String username) {
-
-        List<UserRepos> cachedRepos = repository.findByUsername(username);
-        if (!cachedRepos.isEmpty()) {
-            return cachedRepos;
-        }
-
-        String url = "https://api.github.com/users/" + username + "/repos";
-        ResponseEntity<UserRepos[]> response = restTemplate.getForEntity(url, UserRepos[].class);
-
-        List<UserRepos> repositories = Arrays.asList(Objects.requireNonNull(response.getBody()));
-        repositories.forEach(repo -> {
-            repo.setUsername(username);
-            repo.setName(repo.getName());
-            repo.setHtml_url(repo.getHtml_url());
-            repo.setTeams_url(repo.getTeams_url());
-        });
-        repository.saveAll(repositories);
-
-        return repositories;
+    @Cacheable(value = "user", key = "#username")
+    public Flux<GitHubRepository> getPublicRepositories(String username) {
+        return this.webClient.get()
+                .uri("/users/{username}/repos", username)
+                .retrieve()
+                .bodyToFlux(GitHubRepository.class)
+                .doOnNext(repo -> {
+                    repo.setUsername(username);
+                    redisRepository.save(repo);
+                });
     }
 
-    public List<UserRepos> getAllRepos(){
-        return repository.findAll();
-    }
+    @Cacheable(value = "repos", key = "#username")
+    public Flux<GitHubRepository> getPrivateRepositories(String username, String token){
+                return this.webClient.get()
+                        .uri("/user/repos?visibility=private")
+                        .header("Authorization", "Bearer " + token)
+                        .retrieve()
+                        .bodyToFlux(GitHubRepository.class)
+                        .doOnNext(redisRepository::save);
 
+            }
 }
