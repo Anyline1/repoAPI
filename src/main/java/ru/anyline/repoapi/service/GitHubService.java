@@ -1,5 +1,6 @@
 package ru.anyline.repoapi.service;
 
+import lombok.AllArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import ru.anyline.repoapi.model.GitHubRepository;
 import org.springframework.stereotype.Service;
@@ -8,16 +9,11 @@ import reactor.core.publisher.Flux;
 import ru.anyline.repoapi.repository.RedisRepository;
 
 @Service
+@AllArgsConstructor
 public class GitHubService {
 
     private final WebClient webClient;
     private final RedisRepository redisRepository;
-
-    public GitHubService(WebClient webClient,
-                         RedisRepository redisRepository) {
-        this.webClient = webClient;
-        this.redisRepository = redisRepository;
-    }
 
     @Cacheable(value = "user", key = "#username")
     public Flux<GitHubRepository> getPublicRepositories(String username) {
