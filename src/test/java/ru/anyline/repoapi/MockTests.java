@@ -8,12 +8,11 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import ru.anyline.repoapi.controller.GitHubController;
-import ru.anyline.repoapi.service.GitHubService;
+import ru.anyline.repoapi.service.GitHubServiceImpl;
 
 import java.util.Collections;
 
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrlPattern;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
@@ -24,7 +23,7 @@ public class MockTests {
     private MockMvc mockMvc;
 
     @MockBean
-    private GitHubService gitHubService;
+    private GitHubServiceImpl gitHubServiceImpl;
 
     @Test
     @WithMockUser(
@@ -33,7 +32,7 @@ public class MockTests {
             roles = "user"
     )
     public void testShowRepos() throws Exception{
-        when(gitHubService.getRepositories("testuser")).thenReturn(Collections.emptyList());
+        when(gitHubServiceImpl.getRepositories("testuser")).thenReturn(Collections.emptyList());
 
         mockMvc.perform(get("/repos/testuser"))
                 .andExpect(status().isOk())

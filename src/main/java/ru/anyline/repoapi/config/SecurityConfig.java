@@ -23,7 +23,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/**","/swagger-ui","/api-docs").authenticated()
+                        .requestMatchers("/**","/swagger").authenticated()
                         .anyRequest().permitAll()
                 )
                 .formLogin(withDefaults())
@@ -37,8 +37,8 @@ public class SecurityConfig {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        UserDetails user = User.withUsername("user")
-                .password(passwordEncoder().encode("password"))
+        UserDetails user = User.withUsername("q")
+                .password(passwordEncoder().encode("q"))
                 .roles("USER")
                 .build();
 
