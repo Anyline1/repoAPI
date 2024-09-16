@@ -6,5 +6,7 @@ import java.util.List;
 
 public interface Repository extends JpaRepository<UserRepos, String> {
 
-    List<UserRepos> findByUsername(String s);
+    List<UserRepos> findByUsername(String username);
+    UserRepos findByRepoName(String repoName);
+
 }

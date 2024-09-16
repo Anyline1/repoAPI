@@ -16,7 +16,6 @@ import java.util.Objects;
 public class GitHubServiceImpl implements GitHubService{
 
     private final Repository repository;
-
     private final RestTemplate restTemplate;
 
     public List<UserRepos> getRepositories(String username) {
@@ -39,6 +38,10 @@ public class GitHubServiceImpl implements GitHubService{
         });
         repository.saveAll(repositories);
         return repositories;
+    }
+
+    public UserRepos getUserRepo(String reponame) {
+        return repository.findByRepoName(reponame);
     }
 
     public List<UserRepos> getCachedRepos(){
