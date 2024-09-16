@@ -85,4 +85,20 @@ public class GitHubControllerTest {
         assertEquals(HttpStatus.TOO_MANY_REQUESTS, actualResponse.getStatusCode());
     }
 
+    @Test
+    public void getRepositories_whenGitHubAPIReturnsALargeNumberOfRepositories_shouldReturnResponseWithValidFormat() {
+        String validUsername = "testUser";
+        int expectedReposCount = 100; // Replace with actual expected count
+        List<UserRepos> expectedRepos = new ArrayList<>();
+        for (int i = 0; i < expectedReposCount; i++) {
+            expectedRepos.add(new UserRepos(i + 1L, validUsername, "repo" + (i + 1), "https://github.com/testUser/repo" + (i + 1)));
+        }
+        when(gitHubServiceImpl.getRepositories(validUsername)).thenReturn(expectedRepos);
+
+        ResponseEntity<List<UserRepos>> actualResponse = gitHubController.getRepositories(validUsername);
+
+        assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
+        assertEquals(expectedReposCount, actualResponse.getBody().size());
+    }
+
 }

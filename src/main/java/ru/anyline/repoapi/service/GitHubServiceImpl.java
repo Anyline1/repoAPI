@@ -17,7 +17,6 @@ import java.util.Objects;
 public class GitHubServiceImpl implements GitHubService{
 
     private final Repository repository;
-
     private final RestTemplate restTemplate;
 
     public List<UserRepos> getRepositories(String username) {
