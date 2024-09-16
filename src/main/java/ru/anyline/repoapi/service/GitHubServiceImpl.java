@@ -40,7 +40,10 @@ public class GitHubServiceImpl implements GitHubService{
         repository.saveAll(repositories);
         return repositories;
     }
-
+    
+    public UserRepos getUserRepo(String reponame) {
+        return repository.findByRepoName(reponame);
+    }
     public List<UserRepos> getCachedRepos(){
         return repository.findAll();
     }
