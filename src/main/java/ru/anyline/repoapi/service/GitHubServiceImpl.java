@@ -1,6 +1,5 @@
 package ru.anyline.repoapi.service;
 
-import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import ru.anyline.repoapi.repository.Repository;
 import ru.anyline.repoapi.model.UserRepos;
