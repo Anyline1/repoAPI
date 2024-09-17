@@ -112,4 +112,64 @@ public class GitHubControllerTest {
         assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
     }
 
+    @Test
+    public void getCustomRepository_whenUsernameIsEmpty_shouldReturnBadRequest() {
+        String username = "";
+        String repoName = "testRepo";
+        ResponseEntity<UserRepos> expectedResponse = ResponseEntity.badRequest().build();
+
+        ResponseEntity<UserRepos> actualResponse = gitHubController.getCustomRepository(username, repoName);
+
+        assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
+    }
+
+    @Test
+    public void getCustomRepository_whenRepoNameIsNull_shouldReturnBadRequest() {
+        String username = "testUser";
+        String repoName = null;
+        ResponseEntity<UserRepos> expectedResponse = ResponseEntity.badRequest().build();
+
+        ResponseEntity<UserRepos> actualResponse = gitHubController.getCustomRepository(username, repoName);
+
+        assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
+    }
+
+    @Test
+    public void getCustomRepository_whenRepoNameIsEmpty_shouldReturnBadRequest() {
+        String username = "testUser";
+        String repoName = "";
+        ResponseEntity<UserRepos> expectedResponse = ResponseEntity.badRequest().build();
+
+        ResponseEntity<UserRepos> actualResponse = gitHubController.getCustomRepository(username, repoName);
+
+        assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
+    }
+
+    @Test
+    public void getCustomRepository_whenValidUsernameAndRepoNameProvided_shouldReturnStatusOK() {
+        String validUsername = "testUser";
+        String validRepoName = "testRepo";
+        UserRepos expectedRepo = new UserRepos(1L, validUsername, validRepoName, "https://github.com/testUser/testRepo");
+        when(gitHubServiceImpl.getRepository(validUsername, validRepoName)).thenReturn(expectedRepo);
+
+        ResponseEntity<UserRepos> actualResponse = gitHubController.getCustomRepository(validUsername, validRepoName);
+
+        assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
+        assertEquals(expectedRepo, actualResponse.getBody());
+    }
+
+    @Test
+    public void getCustomRepository_whenValidUsernameAndRepoNameProvided_shouldReturnStatusOKRegardlessOfRepoPrivacy() {
+        String validUsername = "testUser";
+        String validRepoName = "testRepo";
+        UserRepos expectedRepo = new UserRepos(1L, validUsername, validRepoName, "https://github.com/testUser/testRepo");
+        when(gitHubServiceImpl.getRepository(validUsername, validRepoName)).thenReturn(expectedRepo);
+
+        ResponseEntity<UserRepos> actualResponse = gitHubController.getCustomRepository(validUsername, validRepoName);
+
+        assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
+        assertEquals(expectedRepo, actualResponse.getBody());
+    }
+
+
 }
