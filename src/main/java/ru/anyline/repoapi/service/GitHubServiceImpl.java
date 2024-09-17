@@ -20,28 +20,44 @@ public class GitHubServiceImpl implements GitHubService{
 
     public List<UserRepos> getRepositories(String username) {
 
-        List<UserRepos> cachedRepos = repository.findByUsername(username);
-        if (!cachedRepos.isEmpty()) {
-            return cachedRepos;
+    List<UserRepos> cachedRepos = repository.findByUsername(username);
+    if (!cachedRepos.isEmpty()) {
+        return cachedRepos;
+    }
+
+    String url = String.format("https://api.github.com/users/%s/repos", username);
+    ResponseEntity<UserRepos[]> response = restTemplate.getForEntity(url, UserRepos[].class);
+
+    List<UserRepos> repositories = Arrays.asList(Objects.requireNonNull(response.getBody()));
+
+    repositories.forEach(repo -> {
+        repo.setId(null);
+        repo.setUsername(username);
+        repo.setRepoName(repo.getRepoName());
+        repo.setUrl(repo.getUrl());
+    });
+    repository.saveAll(repositories);
+    return repositories;
+}
+
+
+    public UserRepos getRepository(String username, String repoName) {
+        UserRepos cachedRepo = repository.findByRepoName(username, repoName);
+        if (cachedRepo != null) {
+            return cachedRepo;
         }
+        String url = String.format("https://api.github.com/repos/%s/%s", username, repoName);
+        ResponseEntity<UserRepos> response = restTemplate.getForEntity(url, UserRepos.class);
 
-        String url = "https://api.github.com/users/" + username + "/repos";
-        ResponseEntity<UserRepos[]> response = restTemplate.getForEntity(url, UserRepos[].class);
-
-        List<UserRepos> repositories = Arrays.asList(Objects.requireNonNull(response.getBody()));
-
-        repositories.forEach(repo -> {
+        UserRepos repo = response.getBody();
+        if (repo != null) {
             repo.setId(null);
             repo.setUsername(username);
             repo.setRepoName(repo.getRepoName());
             repo.setUrl(repo.getUrl());
-        });
-        repository.saveAll(repositories);
-        return repositories;
-    }
-
-    public UserRepos getUserRepo(String reponame) {
-        return repository.findByRepoName(reponame);
+            repository.save(repo);
+        }
+        return repo;
     }
 
     public List<UserRepos> getCachedRepos(){

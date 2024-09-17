@@ -31,6 +31,20 @@ public class GitHubController {
         }
     }
 
+    @GetMapping("/repos/{username}/{repoName}")
+    @Tag(name = "Get a specific repo", description = "API для получения определенного репозитория пользователя")
+    public ResponseEntity<UserRepos> getCustomRepository(@PathVariable String username, @PathVariable String repoName) {
+        if (username == null || username.isEmpty() || repoName == null || repoName.isEmpty()) {
+            return ResponseEntity.badRequest().body(null);
+        }
+        try {
+            UserRepos repo = gitHubServiceImpl.getRepository(username, repoName);
+            return ResponseEntity.ok(repo);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(null);
+        }
+    }
+
 
 
     @GetMapping("/cached")
@@ -39,6 +53,8 @@ public class GitHubController {
         List<UserRepos> repos = gitHubServiceImpl.getCachedRepos();
         return ResponseEntity.ok(repos);
     }
+
+
 
 
 
