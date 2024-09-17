@@ -8,6 +8,6 @@ public interface GitHubService {
 
     List<UserRepos> getRepositories(String username);
     List<UserRepos> getCachedRepos();
-    UserRepos getUserRepo(String reponame);
+    UserRepos getRepository(String username, String reponame);
 
 }
