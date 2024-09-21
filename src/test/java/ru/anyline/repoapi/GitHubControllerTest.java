@@ -171,5 +171,51 @@ public class GitHubControllerTest {
         assertEquals(expectedRepo, actualResponse.getBody());
     }
 
+    @Test
+    public void getAllRepos_whenNoReposAreCached_shouldReturnEmptyList() {
+        List<UserRepos> expectedRepos = Collections.emptyList();
+        when(gitHubServiceImpl.getCachedRepos()).thenReturn(expectedRepos);
+
+        ResponseEntity<List<UserRepos>> actualResponse = gitHubController.getAllRepos();
+
+        assertEquals(expectedRepos, actualResponse.getBody());
+    }
+
+    @Test
+    public void getAllRepos_whenSomeReposAreCached_shouldReturnAListOfRepos() {
+        List<UserRepos> expectedRepos = new ArrayList<>();
+        expectedRepos.add(new UserRepos(1L, "testUser1", "repo1", "https://github.com/testUser1/repo1"));
+        expectedRepos.add(new UserRepos(2L, "testUser2", "repo2", "https://github.com/testUser2/repo2"));
+        when(gitHubServiceImpl.getCachedRepos()).thenReturn(expectedRepos);
+
+        ResponseEntity<List<UserRepos>> actualResponse = gitHubController.getAllRepos();
+
+        assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
+        assertEquals(expectedRepos, actualResponse.getBody());
+    }
+
+    @Test
+    public void getAllRepos_whenGitHubAPIEncountersAnInternalServerError_shouldReturnInternalServerError() {
+        when(gitHubServiceImpl.getCachedRepos()).thenThrow(new RuntimeException("Internal server error"));
+
+        ResponseEntity<List<UserRepos>> actualResponse = gitHubController.getAllRepos();
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, actualResponse.getStatusCode());
+    }
+
+    @Test
+    public void getAllRepos_whenUserHasMoreThan100Repositories_shouldHandlePagination() {
+        int expectedReposCount = 150;
+        List<UserRepos> expectedRepos = new ArrayList<>();
+        for (int i = 0; i < expectedReposCount; i++) {
+            expectedRepos.add(new UserRepos(i + 1L, "testUser", "repo" + (i + 1), "https://github.com/testUser/repo" + (i + 1)));
+        }
+        when(gitHubServiceImpl.getCachedRepos()).thenReturn(expectedRepos);
+
+        ResponseEntity<List<UserRepos>> actualResponse = gitHubController.getAllRepos();
+
+        assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
+        assertEquals(expectedReposCount, actualResponse.getBody().size());
+    }
 
 }
