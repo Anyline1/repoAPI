@@ -49,10 +49,16 @@ public class GitHubController {
 
     @GetMapping("/cached")
     @Tag(name = "Get all repos from DB",description = "Выводит JSON список всех сохраненных репо")
-    public ResponseEntity<List<UserRepos>> getAllRepos(){
-        List<UserRepos> repos = gitHubServiceImpl.getCachedRepos();
-        return ResponseEntity.ok(repos);
+    public ResponseEntity<List<UserRepos>> getAllRepos() {
+        try {
+            List<UserRepos> cachedRepos = gitHubServiceImpl.getCachedRepos();
+            return ResponseEntity.ok(cachedRepos);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
+
+
 
 
 
