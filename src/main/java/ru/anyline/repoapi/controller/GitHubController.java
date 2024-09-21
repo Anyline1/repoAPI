@@ -61,10 +61,12 @@ public class GitHubController {
     @GetMapping("/cached/{username}")
     @Tag(name = "Get repos from DB by username",description = "Выводит JSON список репозиториев пользователя из БД")
     public ResponseEntity<List<UserRepos>> getReposByUsername(@PathVariable String username) {
-
-
-
-
-
+        try {
+            List<UserRepos> cachedRepos = gitHubServiceImpl.getReposByUsername(username);
+            return ResponseEntity.ok(cachedRepos);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 
 }
