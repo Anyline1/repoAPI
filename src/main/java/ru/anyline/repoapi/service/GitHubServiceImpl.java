@@ -1,6 +1,5 @@
 package ru.anyline.repoapi.service;
 
-import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import ru.anyline.repoapi.repository.Repository;
 import ru.anyline.repoapi.model.UserRepos;
@@ -17,7 +16,6 @@ import java.util.Objects;
 public class GitHubServiceImpl implements GitHubService{
 
     private final Repository repository;
-
     private final RestTemplate restTemplate;
 
     public List<UserRepos> getRepositories(String username) {
@@ -27,7 +25,7 @@ public class GitHubServiceImpl implements GitHubService{
             return cachedRepos;
         }
 
-        String url = "https://api.github.com/users/" + username + "/repos";
+        String url = String.format("https://api.github.com/users/%s/repos", username);
         ResponseEntity<UserRepos[]> response = restTemplate.getForEntity(url, UserRepos[].class);
 
         List<UserRepos> repositories = Arrays.asList(Objects.requireNonNull(response.getBody()));
