@@ -40,6 +40,26 @@ public class GitHubServiceImpl implements GitHubService{
         return repositories;
     }
 
+
+    public UserRepos getRepository(String username, String repoName) {
+        UserRepos cachedRepo = repository.findByRepoName(username, repoName);
+        if (cachedRepo != null) {
+            return cachedRepo;
+        }
+        String url = String.format("https://api.github.com/repos/%s/%s", username, repoName);
+        ResponseEntity<UserRepos> response = restTemplate.getForEntity(url, UserRepos.class);
+
+        UserRepos repo = response.getBody();
+        if (repo != null) {
+            repo.setId(null);
+            repo.setUsername(username);
+            repo.setRepoName(repo.getRepoName());
+            repo.setUrl(repo.getUrl());
+            repository.save(repo);
+        }
+        return repo;
+    }
+
     public List<UserRepos> getCachedRepos(){
         return repository.findAll();
     }
