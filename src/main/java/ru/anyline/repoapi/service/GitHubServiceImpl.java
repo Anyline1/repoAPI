@@ -64,4 +64,6 @@ public class GitHubServiceImpl implements GitHubService{
         return repository.findAll();
     }
 
+    public List<UserRepos> getReposByUsername(String username){ return repository.findByUsername(username);  }
+
 }
