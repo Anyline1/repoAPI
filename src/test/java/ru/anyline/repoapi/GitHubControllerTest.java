@@ -218,4 +218,39 @@ public class GitHubControllerTest {
         assertEquals(expectedReposCount, actualResponse.getBody().size());
     }
 
+    @Test
+    public void getReposByUsername_whenUserHasNoPublicRepos_shouldReturnEmptyList() {
+        String username = "testUser";
+        List<UserRepos> expectedRepos = Collections.emptyList();
+        when(gitHubServiceImpl.getReposByUsername(username)).thenReturn(expectedRepos);
+
+        ResponseEntity<List<UserRepos>> actualResponse = gitHubController.getReposByUsername(username);
+
+        assertEquals(expectedRepos, actualResponse.getBody());
+    }
+
+    @Test
+    public void getReposByUsername_whenSomeReposAreCached_shouldReturnAListOfRepos() {
+        String validUsername = "testUser";
+        List<UserRepos> expectedRepos = new ArrayList<>();
+        expectedRepos.add(new UserRepos(1L, validUsername, "repo1", "https://github.com/testUser/repo1"));
+        expectedRepos.add(new UserRepos(2L, validUsername, "repo2", "https://github.com/testUser/repo2"));
+        when(gitHubServiceImpl.getReposByUsername(validUsername)).thenReturn(expectedRepos);
+
+        ResponseEntity<List<UserRepos>> actualResponse = gitHubController.getReposByUsername(validUsername);
+
+        assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
+        assertEquals(expectedRepos, actualResponse.getBody());
+    }
+
+    @Test
+    public void getReposByUsername_whenInvalidUsernameProvided_shouldReturnError() {
+        String invalidUsername = "";
+        ResponseEntity<List<UserRepos>> expectedResponse = ResponseEntity.badRequest().build();
+
+        ResponseEntity<List<UserRepos>> actualResponse = gitHubController.getReposByUsername(invalidUsername);
+
+        assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
+    }
+
 }
