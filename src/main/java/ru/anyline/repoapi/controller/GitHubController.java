@@ -45,17 +45,29 @@ public class GitHubController {
         }
     }
 
-
-
     @GetMapping("/cached")
     @Tag(name = "Get all repos from DB",description = "Выводит JSON список всех сохраненных репо")
-    public ResponseEntity<List<UserRepos>> getAllRepos(){
-        List<UserRepos> repos = gitHubServiceImpl.getCachedRepos();
-        return ResponseEntity.ok(repos);
+    public ResponseEntity<List<UserRepos>> getAllRepos() {
+        try {
+            List<UserRepos> cachedRepos = gitHubServiceImpl.getCachedRepos();
+            return ResponseEntity.ok(cachedRepos);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
-
-
-
+    @GetMapping("/cached/{username}")
+    @Tag(name = "Get repos from DB by username",description = "Выводит JSON список репозиториев пользователя из БД")
+    public ResponseEntity<List<UserRepos>> getReposByUsername(@PathVariable String username) {
+        if (username == null || username.isEmpty()) {
+            return ResponseEntity.badRequest().body(null);
+        }
+        try {
+            List<UserRepos> cachedRepos = gitHubServiceImpl.getReposByUsername(username);
+            return ResponseEntity.ok(cachedRepos);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 
 }
