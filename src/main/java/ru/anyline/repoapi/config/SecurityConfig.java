@@ -23,8 +23,8 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/**","/swagger").authenticated()
-                        .anyRequest().permitAll()
+                        .requestMatchers("/**","/swagger", "/repos/**").permitAll()
+                        .anyRequest().authenticated()
                 )
                 .formLogin(withDefaults())
                 .logout(withDefaults())

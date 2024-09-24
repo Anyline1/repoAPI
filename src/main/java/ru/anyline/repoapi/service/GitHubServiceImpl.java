@@ -42,7 +42,7 @@ public class GitHubServiceImpl implements GitHubService{
 
 
     public UserRepos getRepository(String username, String repoName) {
-        UserRepos cachedRepo = repository.findByRepoName(username, repoName);
+        UserRepos cachedRepo = repository.findByUsernameAndRepoName(username, repoName);
         if (cachedRepo != null) {
             return cachedRepo;
         }
