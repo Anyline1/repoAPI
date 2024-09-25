@@ -20,7 +20,7 @@ public class UserReposController {
     @GetMapping("/repos")
     public String getUserRepos(@RequestParam(name = "username", required = false) String username, Model model) {
         if (username != null && !username.isEmpty()) {
-            String url = "http://localhost:8080/repos/" + username; // URL вашего REST-контроллера
+            String url = "http://localhost:8080/repos/" + username;
             try {
                 ResponseEntity<UserRepos[]> responseEntity = restTemplate.getForEntity(url, UserRepos[].class);
                 UserRepos[] reposArray = responseEntity.getBody();
