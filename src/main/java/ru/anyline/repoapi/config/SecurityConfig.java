@@ -23,10 +23,13 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/login","/swagger", "/repos/**").permitAll()
+                        .requestMatchers("/login", "/swagger", "/repos/**").permitAll()
                         .anyRequest().authenticated()
                 )
-                .formLogin(form -> form.loginPage("/login"))
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .defaultSuccessUrl("/repos", true)
+                )
                 .logout(withDefaults())
                 .csrf(csrf -> csrf
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
