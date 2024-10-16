@@ -6,20 +6,22 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 @Entity
 @Data
+@RequiredArgsConstructor
+@NoArgsConstructor(force = true)
 @AllArgsConstructor
-@NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class UserRepos{
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         private Long id;
-        String username;
+        private final String username;
         @JsonProperty("name")
-        String repoName;
+        private final String repoName;
         @JsonProperty("html_url")
-        String url;
+        private final String url;
 
 }
