@@ -1,29 +1,35 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="">
 <head>
-    <title>User Repositories</title>
+    <title>Пользовательские репозитории</title>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="/css/styleRepo.css">
 </head>
 <body>
 
-<h2>Enter GitHub Username to see Repositories</h2>
+<div style="text-align: right; margin: 10px;">
+    <form th:action="@{/logout}" method="post">
+        <button type="submit" style="padding: 5px 10px; font-size: 16px;">Logout</button>
+    </form>
+</div>
+
+<h2>Введите имя пользователя чтобы получить список публичных репозиториев</h2>
 
 <div class="input-container">
     <form th:action="@{/repos}" method="get">
         <label>
             <input type="text" name="username" placeholder="Enter GitHub username" required>
         </label>
-        <button type="submit">Get Repositories</button>
+        <button type="submit">Получить список репозиториев</button>
     </form>
 </div>
 
-<h2 th:if="${username != null}">Repositories for User: <span th:text="${username}">Username</span></h2>
+<h2 th:if="${username != null}">Публичные репозитории пользователя: <span th:text="${username}">Username</span></h2>
 
-<table th:if="${repos != null}">
+<table th:if="${repos != null && !repos.isEmpty()}">
     <thead>
     <tr>
-        <th>Repository Name</th>
+        <th>Название</th>
         <th>URL</th>
     </tr>
     </thead>
@@ -35,7 +41,7 @@
     </tbody>
 </table>
 
-<p th:if="${repos == null || repos.isEmpty()}">No repositories found or rate limit exceeded.</p>
+<p th:if="${repos == null || repos.isEmpty()}">Репозитории не найдены или истекло время ожидания.</p>
 
 </body>
 </html>

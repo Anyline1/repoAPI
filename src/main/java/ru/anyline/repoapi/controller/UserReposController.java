@@ -23,6 +23,10 @@ public class UserReposController {
             String url = "http://localhost:8080/repos/" + username;
             try {
                 ResponseEntity<UserRepos[]> responseEntity = restTemplate.getForEntity(url, UserRepos[].class);
+                if (responseEntity.getStatusCode().is4xxClientError() || responseEntity.getStatusCode().is5xxServerError()) {
+                    model.addAttribute("error", "Error 404: User not found or rate limit exceeded.");
+                    return "repos";
+                }
                 UserRepos[] reposArray = responseEntity.getBody();
 
                 if (reposArray != null) {

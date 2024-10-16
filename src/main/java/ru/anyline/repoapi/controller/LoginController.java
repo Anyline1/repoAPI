@@ -16,4 +16,10 @@ public class LoginController {
     public String loginRedirect() {
         return "redirect:/repos";
     }
+
+    @PostMapping("/logout")
+    public String logout() {
+        return "redirect:/login";
+    }
+
 }

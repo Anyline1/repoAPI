@@ -9,17 +9,18 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class UserRepos{
+
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         private Long id;
-        String username;
+        private String username;
         @JsonProperty("name")
-        String repoName;
+        private String repoName;
         @JsonProperty("html_url")
-        String url;
+        private String url;
 
 }
