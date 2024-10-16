@@ -4,6 +4,7 @@
     <title>Пользовательские репозитории</title>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="/css/styleRepo.css">
+    <link rel="stylesheet" th:href="@{/css/styleRepo.css}">
 </head>
 <body>
 
@@ -26,7 +27,7 @@
 
 <h2 th:if="${username != null}">Публичные репозитории пользователя: <span th:text="${username}">Username</span></h2>
 
-<table th:if="${repos != null}">
+<table th:if="${repos != null && !repos.isEmpty()}">
     <thead>
     <tr>
         <th>Название</th>
