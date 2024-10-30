@@ -6,6 +6,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 import ru.anyline.repoapi.model.UserRepos;
 
@@ -34,13 +37,22 @@ public class UserReposController {
                     model.addAttribute("repos", repos);
                 }
                 model.addAttribute("username", username);
-            } catch (Exception e) {
-                model.addAttribute("error", "Error fetching repositories or rate limit exceeded.");
-            }
-        }
 
+            } catch (HttpClientErrorException e) {
+                model.addAttribute("error", "Client error: " + e.getStatusCode() + " - " + e.getResponseBodyAsString());
+            } catch (HttpServerErrorException e) {
+                model.addAttribute("error", "Server error: " + e.getStatusCode() + " - " + e.getResponseBodyAsString());
+            } catch (ResourceAccessException e) {
+                model.addAttribute("error", "Resource access error: Unable to connect to the server. Please try again later.");
+            } catch (Exception e) {
+                model.addAttribute("error", "An unexpected error occurred while fetching repositories.");
+            }
+        } else {
+            model.addAttribute("error", "Username is required to fetch repositories.");
+        }
         return "repos";
     }
+
 
 
 }
