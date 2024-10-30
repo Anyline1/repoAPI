@@ -13,7 +13,7 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public String handleUserReposException(UserReposException e, Model model) {
         model.addAttribute("error", e.getMessage());
-        return "error"; 
+        return "error";
     }
 }
 
