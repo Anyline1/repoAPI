@@ -10,6 +10,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
+import ru.anyline.repoapi.exceptions.UserReposException;
 import ru.anyline.repoapi.model.UserRepos;
 
 import java.util.List;
@@ -45,7 +46,7 @@ public class UserReposController {
             } catch (ResourceAccessException e) {
                 model.addAttribute("error", "Resource access error: Unable to connect to the server. Please try again later.");
             } catch (Exception e) {
-                model.addAttribute("error", "An unexpected error occurred while fetching repositories.");
+                throw new UserReposException("An unexpected error occurred while fetching repositories.", e);
             }
         } else {
             model.addAttribute("error", "Username is required to fetch repositories.");
