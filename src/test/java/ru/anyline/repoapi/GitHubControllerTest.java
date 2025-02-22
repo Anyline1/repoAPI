@@ -257,10 +257,19 @@ public class GitHubControllerTest {
     public void getReposByUsername_whenGitHubServiceImplThrowsRuntimeException_shouldReturnInternalServerError() {
         String username = "testUser";
         when(gitHubServiceImpl.getReposByUsername(username)).thenThrow(new RuntimeException("Internal server error"));
-    
+
         ResponseEntity<List<UserRepos>> actualResponse = gitHubController.getReposByUsername(username);
 
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, actualResponse.getStatusCode());
     }
 
+    @Test
+    public void getReposByUsername_whenUsernameIsNull_shouldReturnBadRequest() {
+        String username = null;
+        ResponseEntity<List<UserRepos>> expectedResponse = ResponseEntity.badRequest().build();
+
+        ResponseEntity<List<UserRepos>> actualResponse = gitHubController.getReposByUsername(username);
+
+        assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
+    }
 }
