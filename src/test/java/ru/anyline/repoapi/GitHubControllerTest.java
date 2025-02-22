@@ -15,8 +15,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
 
 public class GitHubControllerTest {
 
@@ -251,6 +252,52 @@ public class GitHubControllerTest {
         ResponseEntity<List<UserRepos>> actualResponse = gitHubController.getReposByUsername(invalidUsername);
 
         assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
+    }
+    
+    @Test
+    public void getReposByUsername_whenGitHubServiceImplThrowsRuntimeException_shouldReturnInternalServerError() {
+        String username = "testUser";
+        when(gitHubServiceImpl.getReposByUsername(username)).thenThrow(new RuntimeException("Internal server error"));
+
+        ResponseEntity<List<UserRepos>> actualResponse = gitHubController.getReposByUsername(username);
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, actualResponse.getStatusCode());
+    }
+
+    @Test
+    public void getReposByUsername_whenUsernameIsNull_shouldReturnBadRequest() {
+        String username = null;
+        ResponseEntity<List<UserRepos>> expectedResponse = ResponseEntity.badRequest().build();
+
+        ResponseEntity<List<UserRepos>> actualResponse = gitHubController.getReposByUsername(username);
+
+        assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
+    }
+    
+    @Test
+    public void getReposByUsername_whenGitHubServiceImplReturnsNull_shouldReturnOkWithEmptyList() {
+        String username = "testUser";
+        when(gitHubServiceImpl.getReposByUsername(username)).thenReturn(null);
+
+        ResponseEntity<List<UserRepos>> actualResponse = gitHubController.getReposByUsername(username);
+
+        assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
+        assertNotNull(actualResponse.getBody());
+        assertTrue(actualResponse.getBody().isEmpty());
+    }
+
+    @Test
+    public void getReposByUsername_shouldPassCorrectUsernameToGitHubServiceImpl() {
+        String username = "testUser";
+        List<UserRepos> expectedRepos = new ArrayList<>();
+        expectedRepos.add(new UserRepos(1L, username, "repo1", "https://github.com/testUser/repo1"));
+        when(gitHubServiceImpl.getReposByUsername(username)).thenReturn(expectedRepos);
+
+        ResponseEntity<List<UserRepos>> actualResponse = gitHubController.getReposByUsername(username);
+
+        verify(gitHubServiceImpl).getReposByUsername(username);
+        assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
+        assertEquals(expectedRepos, actualResponse.getBody());
     }
 
 }
