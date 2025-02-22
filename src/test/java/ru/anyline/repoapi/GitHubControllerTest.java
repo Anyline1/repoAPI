@@ -17,6 +17,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
 
 public class GitHubControllerTest {
 
@@ -293,9 +294,10 @@ public class GitHubControllerTest {
         when(gitHubServiceImpl.getReposByUsername(username)).thenReturn(expectedRepos);
 
         ResponseEntity<List<UserRepos>> actualResponse = gitHubController.getReposByUsername(username);
-    
+
         verify(gitHubServiceImpl).getReposByUsername(username);
         assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
         assertEquals(expectedRepos, actualResponse.getBody());
     }
+
 }
