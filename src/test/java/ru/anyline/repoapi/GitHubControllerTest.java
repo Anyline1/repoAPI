@@ -252,5 +252,15 @@ public class GitHubControllerTest {
 
         assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
     }
+    
+    @Test
+    public void getReposByUsername_whenGitHubServiceImplThrowsRuntimeException_shouldReturnInternalServerError() {
+        String username = "testUser";
+        when(gitHubServiceImpl.getReposByUsername(username)).thenThrow(new RuntimeException("Internal server error"));
+    
+        ResponseEntity<List<UserRepos>> actualResponse = gitHubController.getReposByUsername(username);
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, actualResponse.getStatusCode());
+    }
 
 }
