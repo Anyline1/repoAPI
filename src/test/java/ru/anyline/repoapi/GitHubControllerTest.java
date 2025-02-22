@@ -272,4 +272,16 @@ public class GitHubControllerTest {
 
         assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
     }
+    
+    @Test
+    public void getReposByUsername_whenGitHubServiceImplReturnsNull_shouldReturnOkWithEmptyList() {
+        String username = "testUser";
+        when(gitHubServiceImpl.getReposByUsername(username)).thenReturn(null);
+
+        ResponseEntity<List<UserRepos>> actualResponse = gitHubController.getReposByUsername(username);
+
+        assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
+        assertNotNull(actualResponse.getBody());
+        assertTrue(actualResponse.getBody().isEmpty());
+    }
 }
