@@ -1,5 +1,6 @@
 package ru.anyline.repoapi;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -7,10 +8,12 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import ru.anyline.repoapi.controller.GitHubController;
 import ru.anyline.repoapi.model.UserRepos;
 import ru.anyline.repoapi.service.GitHubServiceImpl;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -299,5 +302,116 @@ public class GitHubControllerTest {
         assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
         assertEquals(expectedRepos, actualResponse.getBody());
     }
+    
+    @Test
+    public void getReposByUsername_whenUsernameIsEmptyString_shouldReturnBadRequest() {
+        String emptyUsername = "";
+        ResponseEntity<List<UserRepos>> expectedResponse = ResponseEntity.badRequest().build();
 
+        ResponseEntity<List<UserRepos>> actualResponse = gitHubController.getReposByUsername(emptyUsername);
+
+        assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
+        assertNull(actualResponse.getBody());
+    }
+
+    @Test
+    public void getReposByUsername_whenGitHubServiceImplReturnsEmptyList_shouldReturnOkWithEmptyList() {
+        String username = "testUser";
+        List<UserRepos> expectedRepos = Collections.emptyList();
+        when(gitHubServiceImpl.getReposByUsername(username)).thenReturn(expectedRepos);
+
+        ResponseEntity<List<UserRepos>> actualResponse = gitHubController.getReposByUsername(username);
+
+        assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
+        assertNotNull(actualResponse.getBody());
+        assertTrue(actualResponse.getBody().isEmpty());
+        verify(gitHubServiceImpl).getReposByUsername(username);
+    }
+    
+    @Test
+    public void getReposByUsername_whenValidResponseReturned_shouldHaveNonNullBody() {
+        String validUsername = "testUser";
+        List<UserRepos> expectedRepos = new ArrayList<>();
+        expectedRepos.add(new UserRepos(1L, validUsername, "repo1", "https://github.com/testUser/repo1"));
+        when(gitHubServiceImpl.getReposByUsername(validUsername)).thenReturn(expectedRepos);
+
+        ResponseEntity<List<UserRepos>> actualResponse = gitHubController.getReposByUsername(validUsername);
+    
+        assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
+        assertNotNull(actualResponse.getBody());
+        assertEquals(expectedRepos, actualResponse.getBody());
+    }
+    
+    @Test
+    public void getReposByUsername_whenUsernameContainsSpecialCharacters_shouldReturnOk() {
+        String usernameWithSpecialChars = "test-user@123";
+        List<UserRepos> expectedRepos = new ArrayList<>();
+        expectedRepos.add(new UserRepos(1L, usernameWithSpecialChars, "repo1", "https://github.com/test-user@123/repo1"));
+        when(gitHubServiceImpl.getReposByUsername(usernameWithSpecialChars)).thenReturn(expectedRepos);
+
+        ResponseEntity<List<UserRepos>> actualResponse = gitHubController.getReposByUsername(usernameWithSpecialChars);
+
+        assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
+        assertNotNull(actualResponse.getBody());
+        assertEquals(expectedRepos, actualResponse.getBody());
+        verify(gitHubServiceImpl).getReposByUsername(usernameWithSpecialChars);
+    }
+    
+    @Test
+    public void getReposByUsername_whenUsernameIsVeryLong_shouldReturnOk() {
+        String longUsername = "a".repeat(100);
+        List<UserRepos> expectedRepos = new ArrayList<>();
+        expectedRepos.add(new UserRepos(1L, longUsername, "repo1", "https://github.com/" + longUsername + "/repo1"));
+        when(gitHubServiceImpl.getReposByUsername(longUsername)).thenReturn(expectedRepos);
+
+        ResponseEntity<List<UserRepos>> actualResponse = gitHubController.getReposByUsername(longUsername);
+
+        assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
+        assertNotNull(actualResponse.getBody());
+        assertEquals(expectedRepos, actualResponse.getBody());
+        verify(gitHubServiceImpl).getReposByUsername(longUsername);
+    }
+    
+    @Test
+    public void getReposByUsername_shouldHaveCorrectAnnotations() throws NoSuchMethodException {
+        Method method = GitHubController.class.getMethod("getReposByUsername", String.class);
+
+        GetMapping getMapping = method.getAnnotation(GetMapping.class);
+        assertNotNull(getMapping);
+        assertArrayEquals(new String[]{"/cached/{username}"}, getMapping.value());
+
+        Tag tag = method.getAnnotation(Tag.class);
+        assertNotNull(tag);
+        assertEquals("Get repos from DB by username", tag.name());
+        assertEquals("Выводит JSON список репозиториев пользователя из БД", tag.description());
+    }
+
+    @Test
+    public void getReposByUsername_whenGitHubServiceImplThrowsSpecificException_shouldReturnInternalServerError() {
+        String username = "testUser";
+        when(gitHubServiceImpl.getReposByUsername(username)).thenThrow(new IllegalStateException("Specific exception"));
+    
+        ResponseEntity<List<UserRepos>> actualResponse = gitHubController.getReposByUsername(username);
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, actualResponse.getStatusCode());
+        assertNull(actualResponse.getBody());
+        verify(gitHubServiceImpl).getReposByUsername(username);
+    }
+    
+    @Test
+    public void getReposByUsername_shouldSetCorrectResponseHeaders() {
+        String username = "testUser";
+        List<UserRepos> expectedRepos = new ArrayList<>();
+        expectedRepos.add(new UserRepos(1L, username, "repo1", "https://github.com/testUser/repo1"));
+        when(gitHubServiceImpl.getReposByUsername(username)).thenReturn(expectedRepos);
+
+        ResponseEntity<List<UserRepos>> actualResponse = gitHubController.getReposByUsername(username);
+
+        assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
+        assertTrue(actualResponse.getHeaders().containsKey("Content-Type"));
+        assertEquals("application/json", actualResponse.getHeaders().getFirst("Content-Type"));
+        assertNotNull(actualResponse.getHeaders().getFirst("Date"));
+    }
+
+    
 }
