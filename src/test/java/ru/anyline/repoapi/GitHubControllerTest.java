@@ -324,6 +324,19 @@ public class GitHubControllerTest {
         assertTrue(actualResponse.getBody().isEmpty());
         verify(gitHubServiceImpl).getReposByUsername(username);
     }
+    
+    @Test
+    public void getReposByUsername_whenValidResponseReturned_shouldHaveNonNullBody() {
+        String validUsername = "testUser";
+        List<UserRepos> expectedRepos = new ArrayList<>();
+        expectedRepos.add(new UserRepos(1L, validUsername, "repo1", "https://github.com/testUser/repo1"));
+        when(gitHubServiceImpl.getReposByUsername(validUsername)).thenReturn(expectedRepos);
 
+        ResponseEntity<List<UserRepos>> actualResponse = gitHubController.getReposByUsername(validUsername);
+    
+        assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
+        assertNotNull(actualResponse.getBody());
+        assertEquals(expectedRepos, actualResponse.getBody());
+    }
     
 }
