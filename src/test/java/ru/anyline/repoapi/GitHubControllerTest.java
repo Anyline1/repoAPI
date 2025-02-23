@@ -386,6 +386,17 @@ public class GitHubControllerTest {
         assertEquals("Выводит JSON список репозиториев пользователя из БД", tag.description());
     }
 
+    @Test
+    public void getReposByUsername_whenGitHubServiceImplThrowsSpecificException_shouldReturnInternalServerError() {
+        String username = "testUser";
+        when(gitHubServiceImpl.getReposByUsername(username)).thenThrow(new IllegalStateException("Specific exception"));
+    
+        ResponseEntity<List<UserRepos>> actualResponse = gitHubController.getReposByUsername(username);
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, actualResponse.getStatusCode());
+        assertNull(actualResponse.getBody());
+        verify(gitHubServiceImpl).getReposByUsername(username);
+    }
 
     
 }
