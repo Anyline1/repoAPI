@@ -339,4 +339,19 @@ public class GitHubControllerTest {
         assertEquals(expectedRepos, actualResponse.getBody());
     }
     
+    @Test
+    public void getReposByUsername_whenUsernameContainsSpecialCharacters_shouldReturnOk() {
+        String usernameWithSpecialChars = "test-user@123";
+        List<UserRepos> expectedRepos = new ArrayList<>();
+        expectedRepos.add(new UserRepos(1L, usernameWithSpecialChars, "repo1", "https://github.com/test-user@123/repo1"));
+        when(gitHubServiceImpl.getReposByUsername(usernameWithSpecialChars)).thenReturn(expectedRepos);
+
+        ResponseEntity<List<UserRepos>> actualResponse = gitHubController.getReposByUsername(usernameWithSpecialChars);
+
+        assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
+        assertNotNull(actualResponse.getBody());
+        assertEquals(expectedRepos, actualResponse.getBody());
+        verify(gitHubServiceImpl).getReposByUsername(usernameWithSpecialChars);
+    }
+    
 }
