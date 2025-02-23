@@ -397,6 +397,21 @@ public class GitHubControllerTest {
         assertNull(actualResponse.getBody());
         verify(gitHubServiceImpl).getReposByUsername(username);
     }
+    
+    @Test
+    public void getReposByUsername_shouldSetCorrectResponseHeaders() {
+        String username = "testUser";
+        List<UserRepos> expectedRepos = new ArrayList<>();
+        expectedRepos.add(new UserRepos(1L, username, "repo1", "https://github.com/testUser/repo1"));
+        when(gitHubServiceImpl.getReposByUsername(username)).thenReturn(expectedRepos);
+
+        ResponseEntity<List<UserRepos>> actualResponse = gitHubController.getReposByUsername(username);
+
+        assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
+        assertTrue(actualResponse.getHeaders().containsKey("Content-Type"));
+        assertEquals("application/json", actualResponse.getHeaders().getFirst("Content-Type"));
+        assertNotNull(actualResponse.getHeaders().getFirst("Date"));
+    }
 
     
 }
