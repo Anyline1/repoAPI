@@ -354,4 +354,19 @@ public class GitHubControllerTest {
         verify(gitHubServiceImpl).getReposByUsername(usernameWithSpecialChars);
     }
     
+    @Test
+    public void getReposByUsername_whenUsernameIsVeryLong_shouldReturnOk() {
+        String longUsername = "a".repeat(100);
+        List<UserRepos> expectedRepos = new ArrayList<>();
+        expectedRepos.add(new UserRepos(1L, longUsername, "repo1", "https://github.com/" + longUsername + "/repo1"));
+        when(gitHubServiceImpl.getReposByUsername(longUsername)).thenReturn(expectedRepos);
+
+        ResponseEntity<List<UserRepos>> actualResponse = gitHubController.getReposByUsername(longUsername);
+
+        assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
+        assertNotNull(actualResponse.getBody());
+        assertEquals(expectedRepos, actualResponse.getBody());
+        verify(gitHubServiceImpl).getReposByUsername(longUsername);
+    }
+    
 }
