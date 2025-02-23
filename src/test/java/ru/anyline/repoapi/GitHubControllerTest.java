@@ -11,6 +11,7 @@ import ru.anyline.repoapi.controller.GitHubController;
 import ru.anyline.repoapi.model.UserRepos;
 import ru.anyline.repoapi.service.GitHubServiceImpl;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -372,7 +373,7 @@ public class GitHubControllerTest {
     @Test
     public void getReposByUsername_shouldHaveCorrectAnnotations() throws NoSuchMethodException {
         Method method = GitHubController.class.getMethod("getReposByUsername", String.class);
-        
+
         GetMapping getMapping = method.getAnnotation(GetMapping.class);
         assertNotNull(getMapping);
         assertArrayEquals(new String[]{"/cached/{username}"}, getMapping.value());
@@ -382,5 +383,7 @@ public class GitHubControllerTest {
         assertEquals("Get repos from DB by username", tag.name());
         assertEquals("Выводит JSON список репозиториев пользователя из БД", tag.description());
     }
+
+
     
 }
