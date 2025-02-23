@@ -369,4 +369,18 @@ public class GitHubControllerTest {
         verify(gitHubServiceImpl).getReposByUsername(longUsername);
     }
     
+    @Test
+    public void getReposByUsername_shouldHaveCorrectAnnotations() throws NoSuchMethodException {
+        Method method = GitHubController.class.getMethod("getReposByUsername", String.class);
+        
+        GetMapping getMapping = method.getAnnotation(GetMapping.class);
+        assertNotNull(getMapping);
+        assertArrayEquals(new String[]{"/cached/{username}"}, getMapping.value());
+
+        Tag tag = method.getAnnotation(Tag.class);
+        assertNotNull(tag);
+        assertEquals("Get repos from DB by username", tag.name());
+        assertEquals("Выводит JSON список репозиториев пользователя из БД", tag.description());
+    }
+    
 }
