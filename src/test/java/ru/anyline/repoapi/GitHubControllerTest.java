@@ -7,6 +7,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import ru.anyline.repoapi.controller.GitHubController;
 import ru.anyline.repoapi.model.UserRepos;
 import ru.anyline.repoapi.service.GitHubServiceImpl;
