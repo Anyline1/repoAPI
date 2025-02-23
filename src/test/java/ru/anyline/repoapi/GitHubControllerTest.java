@@ -299,5 +299,17 @@ public class GitHubControllerTest {
         assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
         assertEquals(expectedRepos, actualResponse.getBody());
     }
+    
+    @Test
+    public void getReposByUsername_whenUsernameIsEmptyString_shouldReturnBadRequest() {
+        String emptyUsername = "";
+        ResponseEntity<List<UserRepos>> expectedResponse = ResponseEntity.badRequest().build();
 
+        ResponseEntity<List<UserRepos>> actualResponse = gitHubController.getReposByUsername(emptyUsername);
+
+        assertEquals(expectedResponse.getStatusCode(), actualResponse.getStatusCode());
+        assertNull(actualResponse.getBody());
+    }
+
+    
 }
