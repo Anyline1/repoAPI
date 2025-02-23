@@ -412,6 +412,26 @@ public class GitHubControllerTest {
         assertEquals("application/json", actualResponse.getHeaders().getFirst("Content-Type"));
         assertNotNull(actualResponse.getHeaders().getFirst("Date"));
     }
+    
+    @Test
+    public void getReposByUsername_whenLargeNumberOfRepositories_shouldPerformEfficiently() {
+        String username = "testUser";
+        int largeRepoCount = 1000;
+        List<UserRepos> expectedRepos = new ArrayList<>();
+        for (int i = 0; i < largeRepoCount; i++) {
+            expectedRepos.add(new UserRepos((long) i, username, "repo" + i, "https://github.com/" + username + "/repo" + i));
+        }
+        when(gitHubServiceImpl.getReposByUsername(username)).thenReturn(expectedRepos);
+
+        long startTime = System.currentTimeMillis();
+        ResponseEntity<List<UserRepos>> actualResponse = gitHubController.getReposByUsername(username);
+        long endTime = System.currentTimeMillis();
+
+        assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
+        assertNotNull(actualResponse.getBody());
+        assertEquals(largeRepoCount, actualResponse.getBody().size());
+        assertTrue((endTime - startTime) < 1000, "Response time should be less than 1 second");
+    }
 
     
 }
