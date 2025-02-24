@@ -435,8 +435,8 @@ public class GitHubControllerTest {
     
     @Test
     public void getReposByUsername_whenGitHubServiceImplThrowsCheckedException_shouldReturnInternalServerError() throws Exception {
-        String username = "testUser";
-        when(gitHubServiceImpl.getReposByUsername(username)).thenThrow(new Exception("Checked exception"));
+        String username = "tYser";
+        when(gitHubServiceImpl.getReposByUsername(username)).thenThrow(new Exception("Exception"));
 
         ResponseEntity<List<UserRepos>> actualResponse = gitHubController.getReposByUsername(username);
 
@@ -444,5 +444,5 @@ public class GitHubControllerTest {
         assertNull(actualResponse.getBody());
         verify(gitHubServiceImpl).getReposByUsername(username);
     }
-    
+
 }
