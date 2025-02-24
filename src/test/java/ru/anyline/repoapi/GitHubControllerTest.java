@@ -432,6 +432,17 @@ public class GitHubControllerTest {
         assertEquals(largeRepoCount, actualResponse.getBody().size());
         assertTrue((endTime - startTime) < 1000, "Response time should be less than 1 second");
     }
-
     
+    @Test
+    public void getReposByUsername_whenGitHubServiceImplThrowsCheckedException_shouldReturnInternalServerError() throws Exception {
+        String username = "tYser";
+        when(gitHubServiceImpl.getReposByUsername(username)).thenThrow(new Exception("Exception"));
+
+        ResponseEntity<List<UserRepos>> actualResponse = gitHubController.getReposByUsername(username);
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, actualResponse.getStatusCode());
+        assertNull(actualResponse.getBody());
+        verify(gitHubServiceImpl).getReposByUsername(username);
+    }
+
 }
