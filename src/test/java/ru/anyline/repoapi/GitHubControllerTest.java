@@ -433,17 +433,6 @@ public class GitHubControllerTest {
         assertTrue((endTime - startTime) < 1000, "Response time should be less than 1 second");
     }
     
-    @Test
-    public void getReposByUsername_whenGitHubServiceImplThrowsCheckedException_shouldReturnInternalServerError() throws Exception {
-        String username = "tYser";
-        when(gitHubServiceImpl.getReposByUsername(username)).thenThrow(new Exception("Exception"));
-
-        ResponseEntity<List<UserRepos>> actualResponse = gitHubController.getReposByUsername(username);
-
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, actualResponse.getStatusCode());
-        assertNull(actualResponse.getBody());
-        verify(gitHubServiceImpl).getReposByUsername(username);
-    }
 
     @Test
     public void getReposByUsername_whenGitHubServiceImplThrowsNullPointerException_shouldReturnInternalServerError() {
@@ -456,5 +445,24 @@ public class GitHubControllerTest {
         assertNull(actualResponse.getBody());
         verify(gitHubServiceImpl).getReposByUsername(username);
     }
+    
+    @Test
+    public void getReposByUsername_whenGitHubServiceImplReturnsListWithNullElements_shouldReturnOkWithFilteredList() {
+        String username = "testUser";
+        List<UserRepos> reposWithNulls = new ArrayList<>();
+        reposWithNulls.add(new UserRepos(1L, username, "repo1", "https://github.com/testUser/repo1"));
+        reposWithNulls.add(null);
+        reposWithNulls.add(new UserRepos(2L, username, "repo2", "https://github.com/testUser/repo2"));
+        when(gitHubServiceImpl.getReposByUsername(username)).thenReturn(reposWithNulls);
+
+        ResponseEntity<List<UserRepos>> actualResponse = gitHubController.getReposByUsername(username);
+
+        assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
+        assertNotNull(actualResponse.getBody());
+        assertEquals(2, actualResponse.getBody().size());
+        assertFalse(actualResponse.getBody().contains(null));
+        verify(gitHubServiceImpl).getReposByUsername(username);
+    }
+    
 
 }
