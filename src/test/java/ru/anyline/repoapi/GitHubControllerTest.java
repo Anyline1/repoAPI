@@ -464,5 +464,20 @@ public class GitHubControllerTest {
         verify(gitHubServiceImpl).getReposByUsername(username);
     }
     
+    @Test
+    public void getReposByUsername_shouldNotModifyResponseBody_whenGitHubServiceImplReturnsValidList() {
+        String username = "testUser";
+        List<UserRepos> expectedRepos = new ArrayList<>();
+        expectedRepos.add(new UserRepos(1L, username, "repo1", "https://github.com/testUser/repo1"));
+        expectedRepos.add(new UserRepos(2L, username, "repo2", "https://github.com/testUser/repo2"));
+        when(gitHubServiceImpl.getReposByUsername(username)).thenReturn(expectedRepos);
+
+        ResponseEntity<List<UserRepos>> actualResponse = gitHubController.getReposByUsername(username);
+
+        assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
+        assertNotNull(actualResponse.getBody());
+        assertEquals(expectedRepos, actualResponse.getBody());
+        verify(gitHubServiceImpl).getReposByUsername(username);
+    }
 
 }
