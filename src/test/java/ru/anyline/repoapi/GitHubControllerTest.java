@@ -511,5 +511,20 @@ public class GitHubControllerTest {
 
         verify(gitHubServiceImpl, times(numberOfThreads)).getCachedRepos();
     }
+    
+    @Test
+    public void getAllRepos_whenCacheIsClearedDuringRequest_shouldReturnEmptyList() {
+        when(gitHubServiceImpl.getCachedRepos()).thenAnswer(invocation -> {
+            Thread.sleep(100);
+            return Collections.emptyList();
+        });
+
+        ResponseEntity<List<UserRepos>> actualResponse = gitHubController.getAllRepos();
+
+        assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
+        assertNotNull(actualResponse.getBody());
+        assertTrue(actualResponse.getBody().isEmpty());
+        verify(gitHubServiceImpl).getCachedRepos();
+    }
 
 }
