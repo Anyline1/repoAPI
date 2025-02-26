@@ -557,7 +557,7 @@ public class GitHubControllerTest {
     
     @Test
     public void getAllRepos_shouldHandleAndLogUnexpectedException() {
-        RuntimeException unexpectedException = new RuntimeException("Unexpected error");
+        RuntimeException unexpectedException = new RuntimeException("Error");
         when(gitHubServiceImpl.getCachedRepos()).thenThrow(unexpectedException);
 
         ResponseEntity<List<UserRepos>> response = gitHubController.getAllRepos();
@@ -566,5 +566,5 @@ public class GitHubControllerTest {
         assertNull(response.getBody());
         verify(gitHubServiceImpl).getCachedRepos();
     }
-    
+
 }
