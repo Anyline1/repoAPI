@@ -566,5 +566,24 @@ public class GitHubControllerTest {
         assertNull(response.getBody());
         verify(gitHubServiceImpl).getCachedRepos();
     }
+    
+    @Test
+    public void getAllRepos_whenCacheContainsRepositoriesWithDuplicateIDs_shouldReturnCorrectResponse() {
+        List<UserRepos> cachedRepos = new ArrayList<>();
+        cachedRepos.add(new UserRepos(1L, "user1", "repo1", "https://github.com/user1/repo1"));
+        cachedRepos.add(new UserRepos(1L, "user2", "repo2", "https://github.com/user2/repo2"));
+        cachedRepos.add(new UserRepos(2L, "user3", "repo3", "https://github.com/user3/repo3"));
+
+        when(gitHubServiceImpl.getCachedRepos()).thenReturn(cachedRepos);
+
+        ResponseEntity<List<UserRepos>> actualResponse = gitHubController.getAllRepos();
+
+        assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
+        assertNotNull(actualResponse.getBody());
+        assertEquals(3, actualResponse.getBody().size());
+        assertEquals(cachedRepos, actualResponse.getBody());
+
+        verify(gitHubServiceImpl).getCachedRepos();
+    }
 
 }
