@@ -554,5 +554,17 @@ public class GitHubControllerTest {
         assertTrue(jsonResponse.contains("\"repoName\":\"repo2\""));
         assertTrue(jsonResponse.contains("\"url\":\"https://github.com/user2/repo2\""));
     }
+    
+    @Test
+    public void getAllRepos_shouldHandleAndLogUnexpectedException() {
+        RuntimeException unexpectedException = new RuntimeException("Unexpected error");
+        when(gitHubServiceImpl.getCachedRepos()).thenThrow(unexpectedException);
 
+        ResponseEntity<List<UserRepos>> response = gitHubController.getAllRepos();
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        assertNull(response.getBody());
+        verify(gitHubServiceImpl).getCachedRepos();
+    }
+    
 }
