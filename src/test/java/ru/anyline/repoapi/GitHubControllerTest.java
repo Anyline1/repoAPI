@@ -526,5 +526,32 @@ public class GitHubControllerTest {
         assertTrue(actualResponse.getBody().isEmpty());
         verify(gitHubServiceImpl).getCachedRepos();
     }
+    
+    @Test
+    public void getAllRepos_shouldReturnProperlySerializedJsonResponse() throws Exception {
+        List<UserRepos> expectedRepos = Arrays.asList(
+            new UserRepos(1L, "user1", "repo1", "https://github.com/user1/repo1"),
+            new UserRepos(2L, "user2", "repo2", "https://github.com/user2/repo2")
+        );
+        when(gitHubServiceImpl.getCachedRepos()).thenReturn(expectedRepos);
+
+        ResponseEntity<List<UserRepos>> response = gitHubController.getAllRepos();
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(expectedRepos.size(), response.getBody().size());
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonResponse = objectMapper.writeValueAsString(response.getBody());
+
+        assertTrue(jsonResponse.contains("\"id\":1"));
+        assertTrue(jsonResponse.contains("\"username\":\"user1\""));
+        assertTrue(jsonResponse.contains("\"repoName\":\"repo1\""));
+        assertTrue(jsonResponse.contains("\"url\":\"https://github.com/user1/repo1\""));
+        assertTrue(jsonResponse.contains("\"id\":2"));
+        assertTrue(jsonResponse.contains("\"username\":\"user2\""));
+        assertTrue(jsonResponse.contains("\"repoName\":\"repo2\""));
+        assertTrue(jsonResponse.contains("\"url\":\"https://github.com/user2/repo2\""));
+    }
 
 }
