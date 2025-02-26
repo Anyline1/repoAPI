@@ -479,5 +479,35 @@ public class GitHubControllerTest {
         assertEquals(expectedRepos, actualResponse.getBody());
         verify(gitHubServiceImpl).getReposByUsername(username);
     }
+    
+    @Test
+    public void getAllRepos_shouldHandleConcurrentRequestsWithoutDataRaceConditions() throws InterruptedException {
+        int numberOfThreads = 10;
+        CountDownLatch latch = new CountDownLatch(numberOfThreads);
+        List<ResponseEntity<List<UserRepos>>> responses = Collections.synchronizedList(new ArrayList<>());
+    
+        List<UserRepos> expectedRepos = Arrays.asList(
+            new UserRepos(1L, "user1", "repo1", "https://github.com/user1/repo1"),
+            new UserRepos(2L, "user2", "repo2", "https://github.com/user2/repo2")
+        );
+        when(gitHubServiceImpl.getCachedRepos()).thenReturn(expectedRepos);
+
+        for (int i = 0; i < numberOfThreads; i++) {
+            new Thread(() -> {
+                responses.add(gitHubController.getAllRepos());
+                latch.countDown();
+            }).start();
+        }
+
+        latch.await(5, TimeUnit.SECONDS);
+
+        assertEquals(numberOfThreads, responses.size());
+        for (ResponseEntity<List<UserRepos>> response : responses) {
+            assertEquals(HttpStatus.OK, response.getStatusCode());
+            assertEquals(expectedRepos, response.getBody());
+        }
+
+        verify(gitHubServiceImpl, times(numberOfThreads)).getCachedRepos();
+    }
 
 }
