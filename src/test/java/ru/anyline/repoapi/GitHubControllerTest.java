@@ -17,6 +17,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -485,7 +486,7 @@ public class GitHubControllerTest {
         int numberOfThreads = 10;
         CountDownLatch latch = new CountDownLatch(numberOfThreads);
         List<ResponseEntity<List<UserRepos>>> responses = Collections.synchronizedList(new ArrayList<>());
-    
+
         List<UserRepos> expectedRepos = Arrays.asList(
             new UserRepos(1L, "user1", "repo1", "https://github.com/user1/repo1"),
             new UserRepos(2L, "user2", "repo2", "https://github.com/user2/repo2")
