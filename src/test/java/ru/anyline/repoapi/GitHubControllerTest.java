@@ -585,5 +585,23 @@ public class GitHubControllerTest {
 
         verify(gitHubServiceImpl).getCachedRepos();
     }
+    
+    @Test
+    public void getAllRepos_shouldNotContainSensitiveInformation() {
+        List<UserRepos> expectedRepos = new ArrayList<>();
+        expectedRepos.add(new UserRepos(1L, "testUser", "repo1", "https://github.com/testUser/repo1"));
+        expectedRepos.add(new UserRepos(2L, "testUser", "repo2", "https://github.com/testUser/repo2"));
+        when(gitHubServiceImpl.getCachedRepos()).thenReturn(expectedRepos);
+
+        ResponseEntity<List<UserRepos>> actualResponse = gitHubController.getAllRepos();
+    
+        assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
+        assertNotNull(actualResponse.getBody());
+        for (UserRepos repo : actualResponse.getBody()) {
+            assertFalse(repo.toString().contains("password"));
+            assertFalse(repo.toString().contains("token"));
+            assertFalse(repo.toString().contains("api_key"));
+        }
+    }
 
 }
