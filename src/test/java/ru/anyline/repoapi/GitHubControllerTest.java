@@ -1,5 +1,6 @@
 package ru.anyline.repoapi;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,12 +16,14 @@ import ru.anyline.repoapi.service.GitHubServiceImpl;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 public class GitHubControllerTest {
 
@@ -478,6 +481,109 @@ public class GitHubControllerTest {
         assertNotNull(actualResponse.getBody());
         assertEquals(expectedRepos, actualResponse.getBody());
         verify(gitHubServiceImpl).getReposByUsername(username);
+    }
+    
+    @Test
+    public void getAllRepos_shouldHandleConcurrentRequestsWithoutDataRaceConditions() throws InterruptedException {
+        int numberOfThreads = 10;
+        CountDownLatch latch = new CountDownLatch(numberOfThreads);
+        List<ResponseEntity<List<UserRepos>>> responses = Collections.synchronizedList(new ArrayList<>());
+
+        List<UserRepos> expectedRepos = Arrays.asList(
+            new UserRepos(1L, "user1", "repo1", "https://github.com/user1/repo1"),
+            new UserRepos(2L, "user2", "repo2", "https://github.com/user2/repo2")
+        );
+        when(gitHubServiceImpl.getCachedRepos()).thenReturn(expectedRepos);
+
+        for (int i = 0; i < numberOfThreads; i++) {
+            new Thread(() -> {
+                responses.add(gitHubController.getAllRepos());
+                latch.countDown();
+            }).start();
+        }
+
+        latch.await(5, TimeUnit.SECONDS);
+
+        assertEquals(numberOfThreads, responses.size());
+        for (ResponseEntity<List<UserRepos>> response : responses) {
+            assertEquals(HttpStatus.OK, response.getStatusCode());
+            assertEquals(expectedRepos, response.getBody());
+        }
+
+        verify(gitHubServiceImpl, times(numberOfThreads)).getCachedRepos();
+    }
+    
+    @Test
+    public void getAllRepos_whenCacheIsClearedDuringRequest_shouldReturnEmptyList() {
+        when(gitHubServiceImpl.getCachedRepos()).thenAnswer(invocation -> {
+            Thread.sleep(100);
+            return Collections.emptyList();
+        });
+
+        ResponseEntity<List<UserRepos>> actualResponse = gitHubController.getAllRepos();
+
+        assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
+        assertNotNull(actualResponse.getBody());
+        assertTrue(actualResponse.getBody().isEmpty());
+        verify(gitHubServiceImpl).getCachedRepos();
+    }
+    
+    @Test
+    public void getAllRepos_shouldReturnProperlySerializedJsonResponse() throws Exception {
+        List<UserRepos> expectedRepos = Arrays.asList(
+            new UserRepos(1L, "user1", "repo1", "https://github.com/user1/repo1"),
+            new UserRepos(2L, "user2", "repo2", "https://github.com/user2/repo2")
+        );
+        when(gitHubServiceImpl.getCachedRepos()).thenReturn(expectedRepos);
+
+        ResponseEntity<List<UserRepos>> response = gitHubController.getAllRepos();
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(expectedRepos.size(), response.getBody().size());
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonResponse = objectMapper.writeValueAsString(response.getBody());
+
+        assertTrue(jsonResponse.contains("\"id\":1"));
+        assertTrue(jsonResponse.contains("\"username\":\"user1\""));
+        assertTrue(jsonResponse.contains("\"repoName\":\"repo1\""));
+        assertTrue(jsonResponse.contains("\"url\":\"https://github.com/user1/repo1\""));
+        assertTrue(jsonResponse.contains("\"id\":2"));
+        assertTrue(jsonResponse.contains("\"username\":\"user2\""));
+        assertTrue(jsonResponse.contains("\"repoName\":\"repo2\""));
+        assertTrue(jsonResponse.contains("\"url\":\"https://github.com/user2/repo2\""));
+    }
+    
+    @Test
+    public void getAllRepos_shouldHandleAndLogUnexpectedException() {
+        RuntimeException unexpectedException = new RuntimeException("Error");
+        when(gitHubServiceImpl.getCachedRepos()).thenThrow(unexpectedException);
+
+        ResponseEntity<List<UserRepos>> response = gitHubController.getAllRepos();
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        assertNull(response.getBody());
+        verify(gitHubServiceImpl).getCachedRepos();
+    }
+    
+    @Test
+    public void getAllRepos_whenCacheContainsRepositoriesWithDuplicateIDs_shouldReturnCorrectResponse() {
+        List<UserRepos> cachedRepos = new ArrayList<>();
+        cachedRepos.add(new UserRepos(1L, "user1", "repo1", "https://github.com/user1/repo1"));
+        cachedRepos.add(new UserRepos(1L, "user2", "repo2", "https://github.com/user2/repo2"));
+        cachedRepos.add(new UserRepos(2L, "user3", "repo3", "https://github.com/user3/repo3"));
+
+        when(gitHubServiceImpl.getCachedRepos()).thenReturn(cachedRepos);
+
+        ResponseEntity<List<UserRepos>> actualResponse = gitHubController.getAllRepos();
+
+        assertEquals(HttpStatus.OK, actualResponse.getStatusCode());
+        assertNotNull(actualResponse.getBody());
+        assertEquals(3, actualResponse.getBody().size());
+        assertEquals(cachedRepos, actualResponse.getBody());
+
+        verify(gitHubServiceImpl).getCachedRepos();
     }
 
 }
