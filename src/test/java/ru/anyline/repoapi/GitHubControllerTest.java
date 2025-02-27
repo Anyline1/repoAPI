@@ -573,6 +573,7 @@ public class GitHubControllerTest {
         cachedRepos.add(new UserRepos(1L, "user1", "repo1", "https://github.com/user1/repo1"));
         cachedRepos.add(new UserRepos(1L, "user2", "repo2", "https://github.com/user2/repo2"));
         cachedRepos.add(new UserRepos(2L, "user3", "repo3", "https://github.com/user3/repo3"));
+        cachedRepos.add(new UserRepos(3L, "user4", "repo4", "https://github.com/user4/repo4"));
 
         when(gitHubServiceImpl.getCachedRepos()).thenReturn(cachedRepos);
 
