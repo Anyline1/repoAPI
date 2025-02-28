@@ -1,5 +1,6 @@
 package ru.anyline.repoapi;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import ru.anyline.repoapi.controller.LoginController;
 
