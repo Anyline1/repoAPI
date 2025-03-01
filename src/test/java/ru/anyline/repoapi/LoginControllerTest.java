@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
+
 @WebMvcTest(LoginController.class)
 class LoginControllerTest {
     @Autowired
@@ -20,5 +21,11 @@ class LoginControllerTest {
         mockMvc.perform(get("/login"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("login"));
+    }
+    
+    @Test
+    void shouldReturnMethodNotAllowedWhenPostRequestIsMadeToLoginEndpoint() throws Exception {
+        mockMvc.perform(post("/login"))
+                .andExpect(status().isMethodNotAllowed());
     }
 }
