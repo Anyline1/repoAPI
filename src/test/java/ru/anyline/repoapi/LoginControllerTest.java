@@ -7,8 +7,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import ru.anyline.repoapi.controller.LoginController;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 
 @WebMvcTest(LoginController.class)
 class LoginControllerTest {
@@ -20,5 +21,18 @@ class LoginControllerTest {
         mockMvc.perform(get("/login"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("login"));
+    }
+    
+    @Test
+    void shouldReturnMethodNotAllowedWhenPostRequestIsMadeToLoginEndpoint() throws Exception {
+        mockMvc.perform(post("/login"))
+                .andExpect(status().isMethodNotAllowed());
+    }
+    
+    @Test
+    void shouldReturnHtmlContentTypeWhenGetRequestIsMadeToLoginEndpoint() throws Exception {
+        mockMvc.perform(get("/login"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("text/html;charset=UTF-8"));
     }
 }
