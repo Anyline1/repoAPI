@@ -29,4 +29,11 @@ class LoginControllerTest {
         mockMvc.perform(post("/login"))
                 .andExpect(status().isMethodNotAllowed());
     }
+    
+    @Test
+    void shouldReturnHtmlContentTypeWhenGetRequestIsMadeToLoginEndpoint() throws Exception {
+        mockMvc.perform(get("/login"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("text/html;charset=UTF-8"));
+    }
 }
