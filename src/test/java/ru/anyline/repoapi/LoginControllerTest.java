@@ -116,4 +116,15 @@ class LoginControllerTest {
                     .andExpect(content().contentType("text/html;charset=UTF-8"));
         }
     }
+
+    @Test
+    void shouldVerifyLoginEndpointCachingBehavior() throws Exception {
+        mockMvc.perform(get("/login")
+                        .header("If-Modified-Since", "Wed, 21 Oct 2015 07:28:00 GMT"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("login"))
+                .andExpect(header().string("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0"))
+                .andExpect(header().string("Pragma", "no-cache"))
+                .andExpect(header().string("Expires", "0"));
+    }
 }
