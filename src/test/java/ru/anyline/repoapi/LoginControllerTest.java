@@ -93,4 +93,27 @@ class LoginControllerTest {
                     .andExpect(content().contentType("text/html;charset=UTF-8"));
         }
     }
+
+
+    @Test
+    void shouldHandleRequestsWithMalformedURLsOrSpecialCharacters() throws Exception {
+        String[] malformedPaths = {
+                "/login%20",
+                "/login?param=value",
+                "/login#fragment",
+                "/login/extra",
+                "/login/../login",
+                "/login/./",
+                "/login//",
+                "/login%2F",
+                "/login%00"
+        };
+
+        for (String path : malformedPaths) {
+            mockMvc.perform(get(path))
+                    .andExpect(status().isOk())
+                    .andExpect(view().name("login"))
+                    .andExpect(content().contentType("text/html;charset=UTF-8"));
+        }
+    }
 }
