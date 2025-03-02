@@ -35,4 +35,16 @@ class LoginControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("text/html;charset=UTF-8"));
     }
+
+    @Test
+    void shouldReturnInternalServerErrorWhenExceptionOccurs() throws Exception {
+        LoginController loginControllerMock = Mockito.mock(LoginController.class);
+        Mockito.when(loginControllerMock.login()).thenThrow(new RuntimeException("Simulated internal error"));
+
+        MockMvc mockMvc = MockMvcBuilders.standaloneSetup(loginControllerMock).build();
+
+        mockMvc.perform(get("/login"))
+                .andExpect(status().isInternalServerError())
+                .andExpect(content().string(containsString("Internal Server Error")));
+    }
 }
