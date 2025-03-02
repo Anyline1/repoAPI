@@ -80,4 +80,17 @@ class LoginControllerTest {
                 .andExpect(content().contentType("text/html;charset=UTF-8"))
                 .andExpect(header().string("X-Frame-Options", "DENY"));
     }
+
+    @Test
+    void shouldMaintainConsistentBehaviorWhenAccessedFromDifferentIPAddresses() throws Exception {
+        String[] ipAddresses = {"192.168.1.1", "10.0.0.1", "172.16.0.1", "8.8.8.8"};
+
+        for (String ipAddress : ipAddresses) {
+            mockMvc.perform(get("/login")
+                            .header("X-Forwarded-For", ipAddress))
+                    .andExpect(status().isOk())
+                    .andExpect(view().name("login"))
+                    .andExpect(content().contentType("text/html;charset=UTF-8"));
+        }
+    }
 }
