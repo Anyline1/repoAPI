@@ -68,4 +68,16 @@ class LoginControllerTest {
                 .andExpect(view().name("login"))
                 .andExpect(content().contentType("text/html;charset=UTF-8"));
     }
+
+    @Test
+    void shouldHandleLoginEndpointWhenAccessedThroughReverseProxy() throws Exception {
+        mockMvc.perform(get("/login")
+                        .header("X-Forwarded-Proto", "https")
+                        .header("X-Forwarded-Host", "example.com")
+                        .header("X-Forwarded-For", "203.0.113.195"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("login"))
+                .andExpect(content().contentType("text/html;charset=UTF-8"))
+                .andExpect(header().string("X-Frame-Options", "DENY"));
+    }
 }
