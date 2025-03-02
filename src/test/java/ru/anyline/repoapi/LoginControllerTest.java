@@ -50,4 +50,22 @@ class LoginControllerTest {
                 .andExpect(status().isInternalServerError())
                 .andExpect(content().string(containsString("Internal Server Error")));
     }
+
+    @Test
+    void shouldHandleRequestsWithDifferentAcceptHeadersCorrectly() throws Exception {
+        mockMvc.perform(get("/login").accept("application/json"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("login"))
+                .andExpect(content().contentType("text/html;charset=UTF-8"));
+
+        mockMvc.perform(get("/login").accept("text/html"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("login"))
+                .andExpect(content().contentType("text/html;charset=UTF-8"));
+
+        mockMvc.perform(get("/login").accept("*/*"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("login"))
+                .andExpect(content().contentType("text/html;charset=UTF-8"));
+    }
 }
