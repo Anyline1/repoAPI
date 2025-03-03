@@ -172,4 +172,11 @@ class LoginControllerTest {
                 .andExpect(status().isFound())
                 .andExpect(redirectedUrl("/repos"));
     }
+
+    @Test
+    void shouldIncludeLocationHeaderWithValueReposInResponse() throws Exception {
+        mockMvc.perform(post("/login"))
+                .andExpect(status().isFound())
+                .andExpect(header().string("Location", "/repos"));
+    }
 }
