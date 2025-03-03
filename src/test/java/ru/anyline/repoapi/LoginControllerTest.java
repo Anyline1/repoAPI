@@ -165,4 +165,11 @@ class LoginControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/repos"));
     }
+
+    @Test
+    void shouldReturnStatusCode302ForPostRequestToLogin() throws Exception {
+        mockMvc.perform(post("/login"))
+                .andExpect(status().isFound())
+                .andExpect(redirectedUrl("/repos"));
+    }
 }
