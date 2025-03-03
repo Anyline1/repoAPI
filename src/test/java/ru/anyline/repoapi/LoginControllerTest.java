@@ -158,4 +158,11 @@ class LoginControllerTest {
         latch.await(5, TimeUnit.SECONDS);
         executorService.shutdown();
     }
+
+    @Test
+    void shouldRedirectToReposWhenPostRequestIsMadeToLoginEndpoint() throws Exception {
+        mockMvc.perform(post("/login"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/repos"));
+    }
 }
