@@ -179,4 +179,12 @@ class LoginControllerTest {
                 .andExpect(status().isFound())
                 .andExpect(header().string("Location", "/repos"));
     }
+
+    @Test
+    void shouldVerifyNoBodyContentForPostRequestToLogin() throws Exception {
+        mockMvc.perform(post("/login"))
+                .andExpect(status().isFound())
+                .andExpect(redirectedUrl("/repos"))
+                .andExpect(content().string(""));
+    }
 }
