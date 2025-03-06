@@ -297,4 +297,33 @@ class LoginControllerTest {
                 .andExpect(status().isFound())
                 .andExpect(redirectedUrl("/repos"));
     }
+
+    @Test
+    void shouldRedirectToLoginPageWhenPostRequestIsMadeToLogoutEndpoint() throws Exception {
+        mockMvc.perform(post("/logout"))
+                .andExpect(status().isFound())
+                .andExpect(redirectedUrl("/login"));
+    }
+
+    @Test
+    void shouldReturnStatusCode302ForPostRequestToLogout() throws Exception {
+        mockMvc.perform(post("/logout"))
+                .andExpect(status().isFound())
+                .andExpect(redirectedUrl("/login"));
+    }
+
+    @Test
+    void shouldIncludeLocationHeaderWithValueLoginInResponseForLogoutRequest() throws Exception {
+        mockMvc.perform(post("/logout"))
+                .andExpect(status().isFound())
+                .andExpect(header().string("Location", "/login"));
+    }
+
+    @Test
+    void shouldVerifyNoBodyContentForPostRequestToLogout() throws Exception {
+        mockMvc.perform(post("/logout"))
+                .andExpect(status().isFound())
+                .andExpect(redirectedUrl("/login"))
+                .andExpect(content().string(""));
+    }
 }
