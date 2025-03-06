@@ -304,4 +304,11 @@ class LoginControllerTest {
                 .andExpect(status().isFound())
                 .andExpect(redirectedUrl("/login"));
     }
+
+    @Test
+    void shouldReturnStatusCode302ForPostRequestToLogout() throws Exception {
+        mockMvc.perform(post("/logout"))
+                .andExpect(status().isFound())
+                .andExpect(redirectedUrl("/login"));
+    }
 }
