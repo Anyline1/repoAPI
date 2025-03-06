@@ -248,4 +248,28 @@ class LoginControllerTest {
                 .andExpect(header().string("Pragma", "no-cache"))
                 .andExpect(header().string("Expires", "0"));
     }
+
+    @Test
+    void shouldHandleConcurrentPostRequestsToLoginEndpointCorrectly() throws Exception {
+        int concurrentRequests = 10;
+        ExecutorService executorService = Executors.newFixedThreadPool(concurrentRequests);
+        CountDownLatch latch = new CountDownLatch(concurrentRequests);
+
+        for (int i = 0; i < concurrentRequests; i++) {
+            executorService.submit(() -> {
+                try {
+                    mockMvc.perform(post("/login"))
+                            .andExpect(status().isFound())
+                            .andExpect(redirectedUrl("/repos"));
+                } catch (Exception e) {
+                    fail("Exception occurred during concurrent request: " + e.getMessage());
+                } finally {
+                    latch.countDown();
+                }
+            });
+        }
+
+        latch.await(5, TimeUnit.SECONDS);
+        executorService.shutdown();
+    }
 }
