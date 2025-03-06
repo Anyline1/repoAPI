@@ -216,4 +216,25 @@ class LoginControllerTest {
                     .andExpect(redirectedUrl("/repos"));
         }
     }
+
+    @Test
+    void shouldHandlePostRequestsWithMalformedURLsOrSpecialCharacters() throws Exception {
+        String[] malformedPaths = {
+                "/login%20",
+                "/login?param=value",
+                "/login#fragment",
+                "/login/extra",
+                "/login/../login",
+                "/login/./",
+                "/login//",
+                "/login%2F",
+                "/login%00"
+        };
+
+        for (String path : malformedPaths) {
+            mockMvc.perform(post(path))
+                    .andExpect(status().isFound())
+                    .andExpect(redirectedUrl("/repos"));
+        }
+    }
 }
