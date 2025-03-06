@@ -237,4 +237,15 @@ class LoginControllerTest {
                     .andExpect(redirectedUrl("/repos"));
         }
     }
+
+    @Test
+    void shouldVerifyLoginPostEndpointCachingBehavior() throws Exception {
+        mockMvc.perform(post("/login")
+                        .header("If-Modified-Since", "Wed, 21 Oct 2015 07:28:00 GMT"))
+                .andExpect(status().isFound())
+                .andExpect(redirectedUrl("/repos"))
+                .andExpect(header().string("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0"))
+                .andExpect(header().string("Pragma", "no-cache"))
+                .andExpect(header().string("Expires", "0"));
+    }
 }
