@@ -272,4 +272,14 @@ class LoginControllerTest {
         latch.await(5, TimeUnit.SECONDS);
         executorService.shutdown();
     }
+
+    @Test
+    void shouldMaintainSessionStateAfterPostRedirect() throws Exception {
+        mockMvc.perform(post("/login")
+                        .sessionAttr("previousPage", "/some-page"))
+                .andExpect(status().isFound())
+                .andExpect(redirectedUrl("/repos"))
+                .andExpect(flash().attributeCount(0))
+                .andExpect(request().sessionAttribute("previousPage", "/some-page"));
+    }
 }
