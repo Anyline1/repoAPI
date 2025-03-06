@@ -179,4 +179,122 @@ class LoginControllerTest {
                 .andExpect(status().isFound())
                 .andExpect(header().string("Location", "/repos"));
     }
+
+    @Test
+    void shouldVerifyNoBodyContentForPostRequestToLogin() throws Exception {
+        mockMvc.perform(post("/login"))
+                .andExpect(status().isFound())
+                .andExpect(redirectedUrl("/repos"))
+                .andExpect(content().string(""));
+    }
+
+    @Test
+    void shouldHandlePostRequestsWithDifferentContentTypesCorrectly() throws Exception {
+        String[] contentTypes = {
+                "application/x-www-form-urlencoded",
+                "application/json",
+                "multipart/form-data",
+                "text/plain"
+        };
+
+        for (String contentType : contentTypes) {
+            mockMvc.perform(post("/login")
+                            .contentType(contentType))
+                    .andExpect(status().isFound())
+                    .andExpect(redirectedUrl("/repos"));
+        }
+    }
+
+    @Test
+    void shouldMaintainConsistentBehaviorForPostRequestsFromDifferentIPAddresses() throws Exception {
+        String[] ipAddresses = {"192.168.1.1", "10.0.0.1", "172.16.0.1", "8.8.8.8"};
+
+        for (String ipAddress : ipAddresses) {
+            mockMvc.perform(post("/login")
+                            .header("X-Forwarded-For", ipAddress))
+                    .andExpect(status().isFound())
+                    .andExpect(redirectedUrl("/repos"));
+        }
+    }
+
+    @Test
+    void shouldHandlePostRequestsWithMalformedURLsOrSpecialCharacters() throws Exception {
+        String[] malformedPaths = {
+                "/login%20",
+                "/login?param=value",
+                "/login#fragment",
+                "/login/extra",
+                "/login/../login",
+                "/login/./",
+                "/login//",
+                "/login%2F",
+                "/login%00"
+        };
+
+        for (String path : malformedPaths) {
+            mockMvc.perform(post(path))
+                    .andExpect(status().isFound())
+                    .andExpect(redirectedUrl("/repos"));
+        }
+    }
+
+    @Test
+    void shouldVerifyLoginPostEndpointCachingBehavior() throws Exception {
+        mockMvc.perform(post("/login")
+                        .header("If-Modified-Since", "Wed, 21 Oct 2015 07:28:00 GMT"))
+                .andExpect(status().isFound())
+                .andExpect(redirectedUrl("/repos"))
+                .andExpect(header().string("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0"))
+                .andExpect(header().string("Pragma", "no-cache"))
+                .andExpect(header().string("Expires", "0"));
+    }
+
+    @Test
+    void shouldHandleConcurrentPostRequestsToLoginEndpointCorrectly() throws Exception {
+        int concurrentRequests = 10;
+        ExecutorService executorService = Executors.newFixedThreadPool(concurrentRequests);
+        CountDownLatch latch = new CountDownLatch(concurrentRequests);
+
+        for (int i = 0; i < concurrentRequests; i++) {
+            executorService.submit(() -> {
+                try {
+                    mockMvc.perform(post("/login"))
+                            .andExpect(status().isFound())
+                            .andExpect(redirectedUrl("/repos"));
+                } catch (Exception e) {
+                    fail("Exception occurred during concurrent request: " + e.getMessage());
+                } finally {
+                    latch.countDown();
+                }
+            });
+        }
+
+        latch.await(5, TimeUnit.SECONDS);
+        executorService.shutdown();
+    }
+
+    @Test
+    void shouldMaintainSessionStateAfterPostRedirect() throws Exception {
+        mockMvc.perform(post("/login")
+                        .sessionAttr("previousPage", "/some-page"))
+                .andExpect(status().isFound())
+                .andExpect(redirectedUrl("/repos"))
+                .andExpect(flash().attributeCount(0))
+                .andExpect(request().sessionAttribute("previousPage", "/some-page"));
+    }
+
+    @Test
+    void shouldRedirectToReposWhenPostRequestWithEmptyOrInvalidCredentials() throws Exception {
+        mockMvc.perform(post("/login")
+                        .param("username", "")
+                        .param("password", ""))
+                .andExpect(status().isFound())
+                .andExpect(redirectedUrl("/repos"));
+
+        mockMvc.perform(post("/login")
+                        .param("username", "invalidUser")
+                        .param("password", "invalidPassword"))
+                .andExpect(status().isFound())
+                .andExpect(redirectedUrl("/repos"));
+    }
 }
