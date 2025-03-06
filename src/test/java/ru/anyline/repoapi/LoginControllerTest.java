@@ -282,4 +282,19 @@ class LoginControllerTest {
                 .andExpect(flash().attributeCount(0))
                 .andExpect(request().sessionAttribute("previousPage", "/some-page"));
     }
+
+    @Test
+    void shouldRedirectToReposWhenPostRequestWithEmptyOrInvalidCredentials() throws Exception {
+        mockMvc.perform(post("/login")
+                        .param("username", "")
+                        .param("password", ""))
+                .andExpect(status().isFound())
+                .andExpect(redirectedUrl("/repos"));
+
+        mockMvc.perform(post("/login")
+                        .param("username", "invalidUser")
+                        .param("password", "invalidPassword"))
+                .andExpect(status().isFound())
+                .andExpect(redirectedUrl("/repos"));
+    }
 }
