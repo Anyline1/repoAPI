@@ -297,4 +297,11 @@ class LoginControllerTest {
                 .andExpect(status().isFound())
                 .andExpect(redirectedUrl("/repos"));
     }
+
+    @Test
+    void shouldRedirectToLoginPageWhenPostRequestIsMadeToLogoutEndpoint() throws Exception {
+        mockMvc.perform(post("/logout"))
+                .andExpect(status().isFound())
+                .andExpect(redirectedUrl("/login"));
+    }
 }
