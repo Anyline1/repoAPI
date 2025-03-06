@@ -204,4 +204,16 @@ class LoginControllerTest {
                     .andExpect(redirectedUrl("/repos"));
         }
     }
+
+    @Test
+    void shouldMaintainConsistentBehaviorForPostRequestsFromDifferentIPAddresses() throws Exception {
+        String[] ipAddresses = {"192.168.1.1", "10.0.0.1", "172.16.0.1", "8.8.8.8"};
+
+        for (String ipAddress : ipAddresses) {
+            mockMvc.perform(post("/login")
+                            .header("X-Forwarded-For", ipAddress))
+                    .andExpect(status().isFound())
+                    .andExpect(redirectedUrl("/repos"));
+        }
+    }
 }
