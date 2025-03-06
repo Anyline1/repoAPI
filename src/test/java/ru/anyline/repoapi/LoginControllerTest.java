@@ -187,4 +187,21 @@ class LoginControllerTest {
                 .andExpect(redirectedUrl("/repos"))
                 .andExpect(content().string(""));
     }
+
+    @Test
+    void shouldHandlePostRequestsWithDifferentContentTypesCorrectly() throws Exception {
+        String[] contentTypes = {
+                "application/x-www-form-urlencoded",
+                "application/json",
+                "multipart/form-data",
+                "text/plain"
+        };
+
+        for (String contentType : contentTypes) {
+            mockMvc.perform(post("/login")
+                            .contentType(contentType))
+                    .andExpect(status().isFound())
+                    .andExpect(redirectedUrl("/repos"));
+        }
+    }
 }
