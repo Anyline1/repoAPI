@@ -5,6 +5,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.client.RestTemplate;
 import ru.anyline.repoapi.controller.UserReposController;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 class UserReposControllerTest {
 
     private RestTemplate restTemplate;
