@@ -6,8 +6,7 @@ import org.springframework.web.client.RestTemplate;
 import ru.anyline.repoapi.controller.UserReposController;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.*;
 
 class UserReposControllerTest {
 
