@@ -36,9 +36,9 @@ class UserReposControllerTest {
         String result = userReposController.getUserRepos(username, model);
 
         assertEquals("repos", result);
-        verify(model).addAttribute("error", "Username is required to fetch repositories.");
+        verify(model).addAttribute("error", "Username is required.");
         verifyNoMoreInteractions(model);
         verifyNoInteractions(restTemplate);
     }
-    
+
 }
