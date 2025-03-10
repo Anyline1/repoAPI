@@ -105,7 +105,7 @@ class UserReposControllerTest {
         String result = userReposController.getUserRepos(username, model);
 
         assertEquals("repos", result);
-        verify(model).addAttribute("error", "Client error: 400 BAD_REQUEST - Bad Request");
+        verify(model).addAttribute("error", "Client error: 400 BAD_REQUEST");
         verifyNoMoreInteractions(model);
     }
 }
