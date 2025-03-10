@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.ui.Model;
 import org.springframework.web.client.RestTemplate;
 import ru.anyline.repoapi.controller.UserReposController;
+import ru.anyline.repoapi.model.UserRepos;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
