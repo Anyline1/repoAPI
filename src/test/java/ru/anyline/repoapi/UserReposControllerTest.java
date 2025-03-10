@@ -7,6 +7,8 @@ import org.springframework.web.client.RestTemplate;
 import ru.anyline.repoapi.controller.UserReposController;
 import ru.anyline.repoapi.model.UserRepos;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
