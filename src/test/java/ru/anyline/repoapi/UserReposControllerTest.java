@@ -28,4 +28,17 @@ class UserReposControllerTest {
         verifyNoMoreInteractions(model);
         verifyNoInteractions(restTemplate);
     }
+
+    @Test
+    void getUserRepos_whenUsernameIsEmpty_shouldReturnReposView() {
+        String username = "";
+
+        String result = userReposController.getUserRepos(username, model);
+
+        assertEquals("repos", result);
+        verify(model).addAttribute("error", "Username is required to fetch repositories.");
+        verifyNoMoreInteractions(model);
+        verifyNoInteractions(restTemplate);
+    }
+    
 }
