@@ -41,4 +41,21 @@ class UserReposControllerTest {
         verifyNoInteractions(restTemplate);
     }
 
+    @Test
+    void getUserRepos_whenSuccessfulApiResponse_shouldPopulateModelWithRepos() {
+        String username = "testUser";
+        String url = "http://localhost:8080/repos/" + username;
+        UserRepos[] mockReposArray = new UserRepos[]{new UserRepos(), new UserRepos()};
+        ResponseEntity<UserRepos[]> mockResponseEntity = new ResponseEntity<>(mockReposArray, HttpStatus.OK);
+
+        when(restTemplate.getForEntity(url, UserRepos[].class)).thenReturn(mockResponseEntity);
+
+        String result = userReposController.getUserRepos(username, model);
+
+        assertEquals("repos", result);
+        verify(model).addAttribute("repos", List.of(mockReposArray));
+        verify(model).addAttribute("username", username);
+        verifyNoMoreInteractions(model);
+    }
+
 }
