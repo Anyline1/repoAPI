@@ -108,4 +108,19 @@ class UserReposControllerTest {
         verify(model).addAttribute("error", "Client error: 400 BAD_REQUEST");
         verifyNoMoreInteractions(model);
     }
+
+    @Test
+    void getUserRepos_whenHttpServerErrorException_shouldSetServerErrorMessage() {
+        String username = "testUser";
+        String url = "http://localhost:8080/repos/" + username;
+        HttpServerErrorException mockException = new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error");
+
+        when(restTemplate.getForEntity(url, UserRepos[].class)).thenThrow(mockException);
+
+        String result = userReposController.getUserRepos(username, model);
+
+        assertEquals("repos", result);
+        verify(model).addAttribute("error", "Server error: 500 INTERNAL_SERVER_ERROR - Internal Server Error");
+        verifyNoMoreInteractions(model);
+    }
 }
