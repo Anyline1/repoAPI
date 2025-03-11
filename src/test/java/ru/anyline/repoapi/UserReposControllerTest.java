@@ -124,4 +124,19 @@ class UserReposControllerTest {
         verify(model).addAttribute("error", "Server error: 500 INTERNAL_SERVER_ERROR - Internal Server Error");
         verifyNoMoreInteractions(model);
     }
+
+    @Test
+    void getUserRepos_whenResourceAccessException_shouldSetErrorMessage() {
+        String username = "testUser";
+        String url = "http://localhost:8080/repos/" + username;
+        ResourceAccessException mockException = new ResourceAccessException("Unable to connect to the server");
+
+        when(restTemplate.getForEntity(url, UserRepos[].class)).thenThrow(mockException);
+
+        String result = userReposController.getUserRepos(username, model);
+
+        assertEquals("repos", result);
+        verify(model).addAttribute("error", "Resource access error: Unable to connect to the server. Please try again later.");
+        verifyNoMoreInteractions(model);
+    }
 }
