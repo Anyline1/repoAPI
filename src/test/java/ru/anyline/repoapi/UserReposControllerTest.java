@@ -5,6 +5,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 import ru.anyline.repoapi.controller.UserReposController;
 import ru.anyline.repoapi.model.UserRepos;
@@ -106,6 +108,36 @@ class UserReposControllerTest {
 
         assertEquals("repos", result);
         verify(model).addAttribute("error", "Client error: 400 BAD_REQUEST");
+        verifyNoMoreInteractions(model);
+    }
+
+    @Test
+    void getUserRepos_whenHttpServerErrorException_shouldSetServerErrorMessage() {
+        String username = "testUser";
+        String url = "http://localhost:8080/repos/" + username;
+        HttpServerErrorException mockException = new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error");
+
+        when(restTemplate.getForEntity(url, UserRepos[].class)).thenThrow(mockException);
+
+        String result = userReposController.getUserRepos(username, model);
+
+        assertEquals("repos", result);
+        verify(model).addAttribute("error", "Server error: 500 INTERNAL_SERVER_ERROR - Internal Server Error");
+        verifyNoMoreInteractions(model);
+    }
+
+    @Test
+    void getUserRepos_whenResourceAccessException_shouldSetErrorMessage() {
+        String username = "testUser";
+        String url = "http://localhost:8080/repos/" + username;
+        ResourceAccessException mockException = new ResourceAccessException("Unable to connect to the server");
+
+        when(restTemplate.getForEntity(url, UserRepos[].class)).thenThrow(mockException);
+
+        String result = userReposController.getUserRepos(username, model);
+
+        assertEquals("repos", result);
+        verify(model).addAttribute("error", "Resource access error: Unable to connect to the server. Please try again later.");
         verifyNoMoreInteractions(model);
     }
 }
