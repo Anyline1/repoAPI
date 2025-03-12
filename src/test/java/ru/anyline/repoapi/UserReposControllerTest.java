@@ -140,4 +140,22 @@ class UserReposControllerTest {
         verify(model).addAttribute("error", "Resource access error: Unable to connect to the server. Please try again later.");
         verifyNoMoreInteractions(model);
     }
+
+    @Test
+    void getUserRepos_whenApiReturnsEmptyArray_shouldNotAddReposAttribute() {
+        String username = "testUser";
+        String url = "http://localhost:8080/repos/" + username;
+        UserRepos[] emptyReposArray = new UserRepos[0];
+        ResponseEntity<UserRepos[]> mockResponseEntity = new ResponseEntity<>(emptyReposArray, HttpStatus.OK);
+
+        when(restTemplate.getForEntity(url, UserRepos[].class)).thenReturn(mockResponseEntity);
+
+        String result = userReposController.getUserRepos(username, model);
+
+        assertEquals("repos", result);
+        verify(model).addAttribute("username", username);
+        verify(model, never()).addAttribute(eq("repos"), any());
+        verifyNoMoreInteractions(model);
+    }
+
 }
