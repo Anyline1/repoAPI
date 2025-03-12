@@ -143,7 +143,7 @@ class UserReposControllerTest {
 
     @Test
     void getUserRepos_whenApiReturnsEmptyArray_shouldNotAddReposAttribute() {
-        String username = "testUser";
+        String username = "tU";
         String url = "http://localhost:8080/repos/" + username;
         UserRepos[] emptyReposArray = new UserRepos[0];
         ResponseEntity<UserRepos[]> mockResponseEntity = new ResponseEntity<>(emptyReposArray, HttpStatus.OK);
