@@ -212,4 +212,19 @@ class UserReposControllerTest {
         verifyNoMoreInteractions(model);
     }
 
+    @Test
+    void getUserRepos_whenNonOkStatusCodeNot4xxOr5xx_shouldReturnReposView() {
+        String username = "testUser";
+        String url = "http://localhost:8080/repos/" + username;
+        ResponseEntity<UserRepos[]> mockResponseEntity = new ResponseEntity<>(HttpStatus.MULTIPLE_CHOICES);
+
+        when(restTemplate.getForEntity(url, UserRepos[].class)).thenReturn(mockResponseEntity);
+
+        String result = userReposController.getUserRepos(username, model);
+
+        assertEquals("repos", result);
+        verify(model).addAttribute("username", username);
+        verifyNoMoreInteractions(model);
+    }
+
 }
