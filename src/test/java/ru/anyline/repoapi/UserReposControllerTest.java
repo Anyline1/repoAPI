@@ -158,4 +158,24 @@ class UserReposControllerTest {
         verifyNoMoreInteractions(model);
     }
 
+    @Test
+    void getUserRepos_whenMaxNumberOfReposReturned_shouldAddAllReposToModel() {
+        String username = "testUser";
+        String url = "http://localhost:8080/repos/" + username;
+        UserRepos[] maxReposArray = new UserRepos[100]; // Assuming 100 is the maximum number of repos
+        for (int i = 0; i < 100; i++) {
+            maxReposArray[i] = new UserRepos();
+        }
+        ResponseEntity<UserRepos[]> mockResponseEntity = new ResponseEntity<>(maxReposArray, HttpStatus.OK);
+
+        when(restTemplate.getForEntity(url, UserRepos[].class)).thenReturn(mockResponseEntity);
+
+        String result = userReposController.getUserRepos(username, model);
+
+        assertEquals("repos", result);
+        verify(model).addAttribute("repos", List.of(maxReposArray));
+        verify(model).addAttribute("username", username);
+        verifyNoMoreInteractions(model);
+    }
+
 }
