@@ -158,4 +158,120 @@ class UserReposControllerTest {
         verifyNoMoreInteractions(model);
     }
 
+    @Test
+    void getUserRepos_whenMaxNumberOfReposReturned_shouldAddAllReposToModel() {
+        String username = "testUser";
+        String url = "http://localhost:8080/repos/" + username;
+        UserRepos[] maxReposArray = new UserRepos[100]; 
+        for (int i = 0; i < 100; i++) {
+            maxReposArray[i] = new UserRepos();
+        }
+        ResponseEntity<UserRepos[]> mockResponseEntity = new ResponseEntity<>(maxReposArray, HttpStatus.OK);
+
+        when(restTemplate.getForEntity(url, UserRepos[].class)).thenReturn(mockResponseEntity);
+
+        String result = userReposController.getUserRepos(username, model);
+
+        assertEquals("repos", result);
+        verify(model).addAttribute("repos", List.of(maxReposArray));
+        verify(model).addAttribute("username", username);
+        verifyNoMoreInteractions(model);
+    }
+
+    @Test
+    void getUserRepos_whenResponseBodyIsNull_shouldNotAddReposAttribute() {
+        String username = "testUser";
+        String url = "http://localhost:8080/repos/" + username;
+        ResponseEntity<UserRepos[]> mockResponseEntity = new ResponseEntity<>(null, HttpStatus.OK);
+
+        when(restTemplate.getForEntity(url, UserRepos[].class)).thenReturn(mockResponseEntity);
+
+        String result = userReposController.getUserRepos(username, model);
+
+        assertEquals("repos", result);
+        verify(model).addAttribute("username", username);
+        verify(model, never()).addAttribute(eq("repos"), any());
+        verifyNoMoreInteractions(model);
+    }
+
+    @Test
+    void getUserRepos_whenUsernameProvidedButNoReposFound_shouldVerifyModelAttributes() {
+        String username = "testUser";
+        String url = "http://localhost:8080/repos/" + username;
+        UserRepos[] emptyReposArray = new UserRepos[0];
+        ResponseEntity<UserRepos[]> mockResponseEntity = new ResponseEntity<>(emptyReposArray, HttpStatus.OK);
+
+        when(restTemplate.getForEntity(url, UserRepos[].class)).thenReturn(mockResponseEntity);
+
+        String result = userReposController.getUserRepos(username, model);
+
+        assertEquals("repos", result);
+        verify(model).addAttribute("username", username);
+        verify(model, never()).addAttribute(eq("repos"), any());
+        verify(model, never()).addAttribute(eq("error"), any());
+        verifyNoMoreInteractions(model);
+    }
+
+    @Test
+    void getUserRepos_whenNonOkStatusCodeNot4xxOr5xx_shouldReturnReposView() {
+        String username = "testUser";
+        String url = "http://localhost:8080/repos/" + username;
+        ResponseEntity<UserRepos[]> mockResponseEntity = new ResponseEntity<>(HttpStatus.MULTIPLE_CHOICES);
+
+        when(restTemplate.getForEntity(url, UserRepos[].class)).thenReturn(mockResponseEntity);
+
+        String result = userReposController.getUserRepos(username, model);
+
+        assertEquals("repos", result);
+        verify(model).addAttribute("username", username);
+        verifyNoMoreInteractions(model);
+    }
+
+    @Test
+    void getUserRepos_whenUsernameContainsSpecialCharacters_shouldEncodeUrlCorrectly() {
+        String username = "test@user#123";
+        String encodedUsername = "test%40user%23123";
+        String url = "http://localhost:8080/repos/" + encodedUsername;
+        UserRepos[] mockReposArray = new UserRepos[]{new UserRepos(), new UserRepos()};
+        ResponseEntity<UserRepos[]> mockResponseEntity = new ResponseEntity<>(mockReposArray, HttpStatus.OK);
+
+        when(restTemplate.getForEntity(url, UserRepos[].class)).thenReturn(mockResponseEntity);
+
+        String result = userReposController.getUserRepos(username, model);
+
+        assertEquals("repos", result);
+        verify(model).addAttribute("repos", List.of(mockReposArray));
+        verify(model).addAttribute("username", username);
+        verifyNoMoreInteractions(model);
+        verify(restTemplate).getForEntity(url, UserRepos[].class);
+    }
+
+    @Test
+    void getUserRepos_whenResponseStatusCodeIsNull_shouldSetErrorMessage() {
+        String username = "testUser";
+        String url = "http://localhost:8080/repos/" + username;
+        ResponseEntity<UserRepos[]> mockResponseEntity = mock(ResponseEntity.class);
+
+        when(restTemplate.getForEntity(url, UserRepos[].class)).thenReturn(mockResponseEntity);
+        when(mockResponseEntity.getStatusCode()).thenReturn(null);
+
+        String result = userReposController.getUserRepos(username, model);
+
+        assertEquals("repos", result);
+        verify(model).addAttribute("error", "Error 404: User not found.");
+        verifyNoMoreInteractions(model);
+    }
+
+    @Test
+    void getUserRepos_whenReposFoundButUsernameIsEmpty_shouldVerifyModelAttributes() {
+        String username = "";
+
+        String result = userReposController.getUserRepos(username, model);
+
+        assertEquals("repos", result);
+        verify(model).addAttribute("error", "Username is required.");
+        verifyNoMoreInteractions(model);
+        verifyNoInteractions(restTemplate);
+    }
+
 }
