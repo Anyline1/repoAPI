@@ -178,4 +178,20 @@ class UserReposControllerTest {
         verifyNoMoreInteractions(model);
     }
 
+    @Test
+    void getUserRepos_whenResponseBodyIsNull_shouldNotAddReposAttribute() {
+        String username = "testUser";
+        String url = "http://localhost:8080/repos/" + username;
+        ResponseEntity<UserRepos[]> mockResponseEntity = new ResponseEntity<>(null, HttpStatus.OK);
+
+        when(restTemplate.getForEntity(url, UserRepos[].class)).thenReturn(mockResponseEntity);
+
+        String result = userReposController.getUserRepos(username, model);
+
+        assertEquals("repos", result);
+        verify(model).addAttribute("username", username);
+        verify(model, never()).addAttribute(eq("repos"), any());
+        verifyNoMoreInteractions(model);
+    }
+
 }
