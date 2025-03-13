@@ -262,4 +262,16 @@ class UserReposControllerTest {
         verifyNoMoreInteractions(model);
     }
 
+    @Test
+    void getUserRepos_whenReposFoundButUsernameIsEmpty_shouldVerifyModelAttributes() {
+        String username = "";
+
+        String result = userReposController.getUserRepos(username, model);
+
+        assertEquals("repos", result);
+        verify(model).addAttribute("error", "Username is required to fetch repositories.");
+        verifyNoMoreInteractions(model);
+        verifyNoInteractions(restTemplate);
+    }
+
 }
