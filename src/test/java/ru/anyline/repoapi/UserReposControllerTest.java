@@ -258,7 +258,7 @@ class UserReposControllerTest {
         String result = userReposController.getUserRepos(username, model);
 
         assertEquals("repos", result);
-        verify(model).addAttribute("error", "Error 404: User not found or rate limit exceeded.");
+        verify(model).addAttribute("error", "Error 404: User not found.");
         verifyNoMoreInteractions(model);
     }
 
