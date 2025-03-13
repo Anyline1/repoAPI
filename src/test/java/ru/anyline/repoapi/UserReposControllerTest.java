@@ -162,7 +162,7 @@ class UserReposControllerTest {
     void getUserRepos_whenMaxNumberOfReposReturned_shouldAddAllReposToModel() {
         String username = "testUser";
         String url = "http://localhost:8080/repos/" + username;
-        UserRepos[] maxReposArray = new UserRepos[100]; // Assuming 100 is the maximum number of repos
+        UserRepos[] maxReposArray = new UserRepos[100]; 
         for (int i = 0; i < 100; i++) {
             maxReposArray[i] = new UserRepos();
         }
