@@ -227,4 +227,23 @@ class UserReposControllerTest {
         verifyNoMoreInteractions(model);
     }
 
+    @Test
+    void getUserRepos_whenUsernameContainsSpecialCharacters_shouldEncodeUrlCorrectly() {
+        String username = "test@user#123";
+        String encodedUsername = "test%40user%23123";
+        String url = "http://localhost:8080/repos/" + encodedUsername;
+        UserRepos[] mockReposArray = new UserRepos[]{new UserRepos(), new UserRepos()};
+        ResponseEntity<UserRepos[]> mockResponseEntity = new ResponseEntity<>(mockReposArray, HttpStatus.OK);
+
+        when(restTemplate.getForEntity(url, UserRepos[].class)).thenReturn(mockResponseEntity);
+
+        String result = userReposController.getUserRepos(username, model);
+
+        assertEquals("repos", result);
+        verify(model).addAttribute("repos", List.of(mockReposArray));
+        verify(model).addAttribute("username", username);
+        verifyNoMoreInteractions(model);
+        verify(restTemplate).getForEntity(url, UserRepos[].class);
+    }
+
 }
