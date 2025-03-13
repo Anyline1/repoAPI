@@ -246,4 +246,20 @@ class UserReposControllerTest {
         verify(restTemplate).getForEntity(url, UserRepos[].class);
     }
 
+    @Test
+    void getUserRepos_whenResponseStatusCodeIsNull_shouldSetErrorMessage() {
+        String username = "testUser";
+        String url = "http://localhost:8080/repos/" + username;
+        ResponseEntity<UserRepos[]> mockResponseEntity = mock(ResponseEntity.class);
+
+        when(restTemplate.getForEntity(url, UserRepos[].class)).thenReturn(mockResponseEntity);
+        when(mockResponseEntity.getStatusCode()).thenReturn(null);
+
+        String result = userReposController.getUserRepos(username, model);
+
+        assertEquals("repos", result);
+        verify(model).addAttribute("error", "Error 404: User not found or rate limit exceeded.");
+        verifyNoMoreInteractions(model);
+    }
+
 }
