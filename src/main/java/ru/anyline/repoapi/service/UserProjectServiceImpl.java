@@ -8,10 +8,10 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class UserProjectService implements UserProject {
+public class UserProjectServiceImpl implements UserProjectService {
     private final UserProjectRepository userProjectRepository;
 
-    public UserProjectService(UserProjectRepository userProjectRepository) {
+    public UserProjectServiceImpl(UserProjectRepository userProjectRepository) {
         this.userProjectRepository = userProjectRepository;
     }
 
