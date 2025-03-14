@@ -1,4 +1,7 @@
 package ru.anyline.repoapi.repository;
 
-public interface UserProjectRepository {
+import org.springframework.data.jpa.repository.JpaRepository;
+import ru.anyline.repoapi.model.UserProject;
+
+public interface UserProjectRepository extends JpaRepository<UserProject, String> {
 }
