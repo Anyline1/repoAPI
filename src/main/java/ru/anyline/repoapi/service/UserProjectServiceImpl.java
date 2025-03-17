@@ -2,9 +2,7 @@ package ru.anyline.repoapi.service;
 
 import org.springframework.stereotype.Service;
 import ru.anyline.repoapi.model.UserProject;
-import ru.anyline.repoapi.model.User;
 import ru.anyline.repoapi.repository.UserProjectRepository;
-import ru.anyline.repoapi.repository.UserRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -54,10 +52,6 @@ public class UserProjectServiceImpl implements UserProjectService {
     public void addParticipantToProject(Long projectId, Long userId) {
         UserProject project = getUserProjectById(projectId)
                 .orElseThrow(() -> new IllegalArgumentException("Project not found with id: " + projectId));
-        User user = userProjectRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId));
-
-        project.getParticipants().add(user);
         userProjectRepository.save(project);
     }
 
@@ -65,18 +59,12 @@ public class UserProjectServiceImpl implements UserProjectService {
     public void removeParticipantFromProject(Long projectId, Long userId) {
         UserProject project = getUserProjectById(projectId)
                 .orElseThrow(() -> new IllegalArgumentException("Project not found with id: " + projectId));
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId));
-
-        project.getParticipants().remove(user);
         userProjectRepository.save(project);
     }
 
     @Override
-    public List<User> getProjectParticipants(Long projectId) {
-        UserProject project = getUserProjectById(projectId)
-                .orElseThrow(() -> new IllegalArgumentException("Project not found with id: " + projectId));
-        return project.getParticipants();
+    public List<UserProject> getProjectParticipants(Long projectId) {
+        return userProjectRepository.findParticipantsByProjectId(projectId);
     }
 
     public List<UserProject> getAllProjects() {
