@@ -23,5 +23,5 @@ public interface UserProjectService {
 
     void removeParticipantFromProject(Long projectId, Long userId);
 
-    List<User> getProjectParticipants(Long projectId);
+    List<UserProject> getProjectParticipants(Long projectId);
 }
