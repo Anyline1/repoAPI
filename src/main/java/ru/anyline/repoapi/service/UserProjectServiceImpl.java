@@ -15,35 +15,59 @@ public class UserProjectServiceImpl implements UserProjectService {
         this.userProjectRepository = userProjectRepository;
     }
 
-    public UserProject createProject(UserProject project) {
-        return userProjectRepository.save(project);
+    @Override
+    public UserProject createUserProject(UserProject userProject) {
+        return userProjectRepository.save(userProject);
     }
 
-    public Optional<UserProject> getProjectById(Long id) {
+    @Override
+    public Optional<UserProject> getUserProjectById(Long id) {
         return userProjectRepository.findById(id);
+    }
+
+    @Override
+    public List<UserProject> getAllUserProjects(Long userId) {
+        return userProjectRepository.findByUserId(userId);
+    }
+
+    @Override
+    public UserProject updateUserProject(UserProject userProject) {
+        if (userProjectRepository.existsById(userProject.getId())) {
+            return userProjectRepository.save(userProject);
+        }
+        throw new IllegalArgumentException("Project not found with id: " + userProject.getId());
+    }
+
+    @Override
+    public void deleteUserProject(Long id) {
+        userProjectRepository.deleteById(id);
+    }
+
+    @Override
+    public List<UserProject> findUserProjectsByName(String projectName) {
+        return userProjectRepository.findByNameContainingIgnoreCase(projectName);
+    }
+
+    @Override
+    public void addParticipantToProject(Long projectId, Long userId) {
+        UserProject project = getUserProjectById(projectId)
+                .orElseThrow(() -> new IllegalArgumentException("Project not found with id: " + projectId));
+        userProjectRepository.save(project);
+    }
+
+    @Override
+    public void removeParticipantFromProject(Long projectId, Long userId) {
+        UserProject project = getUserProjectById(projectId)
+                .orElseThrow(() -> new IllegalArgumentException("Project not found with id: " + projectId));
+        userProjectRepository.save(project);
+    }
+
+    @Override
+    public List<UserProject> getProjectParticipants(Long projectId) {
+        return userProjectRepository.findParticipantsByProjectId(projectId);
     }
 
     public List<UserProject> getAllProjects() {
         return userProjectRepository.findAll();
-    }
-
-    public Optional<UserProject> updateProject(Long id, UserProject project) {
-        if (userProjectRepository.existsById(id)) {
-            project.setId(id);
-            return Optional.of(userProjectRepository.save(project));
-        }
-        return Optional.empty();
-    }
-
-    public boolean deleteProject(Long id) {
-        if (userProjectRepository.existsById(id)) {
-            userProjectRepository.deleteById(id);
-            return true;
-        }
-        return false;
-    }
-
-    public List<UserProject> getProjectsByUserId(Long userId) {
-        return userProjectRepository.findByUserId(userId);
     }
 }
