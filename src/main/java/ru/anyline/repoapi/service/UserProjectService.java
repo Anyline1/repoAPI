@@ -1,5 +1,7 @@
 package ru.anyline.repoapi.service;
 
+import ru.anyline.repoapi.model.UserProject;
+
 import java.util.List;
 import java.util.Optional;
 
