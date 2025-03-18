@@ -11,5 +11,9 @@ public class UserProject {
     private String description;
     private Long userId;
 
+    public String getId() {
+        return null;
+    }
+
     // Getters and setters
 }
