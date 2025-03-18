@@ -17,6 +17,6 @@ public interface UserProjectRepository extends JpaRepository<UserProject, String
 
     void deleteById(Long id);
 
-    Optional<UserProject> findById(String id);
+    Optional<UserProject> findById(Long id);
 
 }
