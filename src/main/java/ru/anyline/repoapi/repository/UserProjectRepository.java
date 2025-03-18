@@ -5,6 +5,7 @@ import org.springframework.stereotype.Repository;
 import ru.anyline.repoapi.model.UserProject;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface UserProjectRepository extends JpaRepository<UserProject, String> {
@@ -17,5 +18,5 @@ public interface UserProjectRepository extends JpaRepository<UserProject, String
     void deleteById(Long id);
 
     Optional<UserProject> findById(String id);
-    
+
 }
