@@ -13,4 +13,9 @@ public interface UserProjectRepository extends JpaRepository<UserProject, String
     List<UserProject> findByNameContainingIgnoreCase(String projectName);
 
     List<UserProject> findParticipantsByProjectId(Long projectId);
+
+    void deleteById(Long id);
+
+    Optional<UserProject> findById(String id);
+    
 }
