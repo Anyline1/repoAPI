@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface UserProjectRepository extends JpaRepository<UserProject, String> {
     List<UserProject> findByUserId(Long userId);
+
+    List<UserProject> findByNameContainingIgnoreCase(String projectName);
 }
