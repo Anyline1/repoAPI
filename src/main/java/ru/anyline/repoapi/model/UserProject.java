@@ -1,8 +1,14 @@
 package ru.anyline.repoapi.model;
 
-import javax.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import lombok.Data;
+
 
 @Entity
+@Data
 public class UserProject {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -11,5 +17,8 @@ public class UserProject {
     private String description;
     private Long userId;
 
-    // Getters and setters
+    public String getId() {
+        return null;
+    }
+
 }
