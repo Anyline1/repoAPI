@@ -1,5 +1,7 @@
 package ru.anyline.repoapi.model;
 
+import jakarta.persistence.Entity;
+
 import javax.persistence.*;
 
 @Entity
