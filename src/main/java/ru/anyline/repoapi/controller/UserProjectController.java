@@ -41,7 +41,7 @@ public class UserProjectController {
 
     @PutMapping("/{id}")
     public ResponseEntity<UserProject> updateProject(@PathVariable Long id, @RequestBody UserProject project) {
-        return userProjectService.updateProject(id, project)
+        return userProjectService.updateUserProject(id, project)
                 .map(updatedProject -> new ResponseEntity<>(updatedProject, HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
