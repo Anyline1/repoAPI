@@ -13,7 +13,7 @@ public interface UserProjectService {
 
     List<UserProject> getAllUserProjects(Long userId);
 
-    UserProject updateUserProject(UserProject userProject);
+    Optional<UserProject> updateUserProject(Long id, UserProject project);
 
     boolean deleteUserProject(Long id);
 
