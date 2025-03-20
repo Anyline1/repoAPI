@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.anyline.repoapi.model.UserProject;
-import ru.anyline.repoapi.service.UserProjectService;
+import ru.anyline.repoapi.service.UserProjectServiceImpl;
 
 import java.util.List;
 
@@ -13,7 +13,7 @@ import java.util.List;
 @RequestMapping("/api/projects")
 public class UserProjectController {
 
-    private final UserProjectService userProjectService;
+    private final UserProjectServiceImpl userProjectService;
 
     @Autowired
     public UserProjectController(UserProjectService userProjectService) {
