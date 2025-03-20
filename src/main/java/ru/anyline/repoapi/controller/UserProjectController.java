@@ -28,7 +28,7 @@ public class UserProjectController {
 
     @GetMapping("/{id}")
     public ResponseEntity<UserProject> getProjectById(@PathVariable Long id) {
-        return userProjectService.getProjectById(id)
+        return userProjectService.getUserProjectById(id)
                 .map(project -> new ResponseEntity<>(project, HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
