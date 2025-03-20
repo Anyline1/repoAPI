@@ -31,16 +31,22 @@ public class UserProjectServiceImpl implements UserProjectService {
     }
 
     @Override
-    public UserProject updateUserProject(UserProject userProject) {
-        if (userProjectRepository.existsById(userProject.getId())) {
-            return userProjectRepository.save(userProject);
+    public Optional<UserProject> updateUserProject(Long id, UserProject project) {
+        Optional<UserProject> existingProject = getUserProjectById(id);
+        if (existingProject.isPresent()) {
+            UserProject updatedProject = existingProject.get();
+            updatedProject.setName(project.getName());
+            updatedProject.setDescription(project.getDescription());
+
+            return Optional.of(userProjectRepository.save(updatedProject));
         }
-        throw new IllegalArgumentException("Project not found with id: " + userProject.getId());
+        return Optional.empty();
     }
 
     @Override
-    public void deleteUserProject(Long id) {
+    public boolean deleteUserProject(Long id) {
         userProjectRepository.deleteById(id);
+        return false;
     }
 
     @Override

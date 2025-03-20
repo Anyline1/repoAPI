@@ -5,30 +5,31 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.anyline.repoapi.model.UserProject;
-import ru.anyline.repoapi.service.UserProjectService;
+import ru.anyline.repoapi.service.UserProjectServiceImpl;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/projects")
 public class UserProjectController {
 
-    private final UserProjectService userProjectService;
+    private final UserProjectServiceImpl userProjectService;
 
     @Autowired
-    public UserProjectController(UserProjectService userProjectService) {
+    public UserProjectController(UserProjectServiceImpl userProjectService) {
         this.userProjectService = userProjectService;
     }
 
     @PostMapping
     public ResponseEntity<UserProject> createProject(@RequestBody UserProject project) {
-        UserProject createdProject = userProjectService.createProject(project);
+        UserProject createdProject = userProjectService.createUserProject(project);
         return new ResponseEntity<>(createdProject, HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<UserProject> getProjectById(@PathVariable Long id) {
-        return userProjectService.getProjectById(id)
+        return userProjectService.getUserProjectById(id)
                 .map(project -> new ResponseEntity<>(project, HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
@@ -41,14 +42,14 @@ public class UserProjectController {
 
     @PutMapping("/{id}")
     public ResponseEntity<UserProject> updateProject(@PathVariable Long id, @RequestBody UserProject project) {
-        return userProjectService.updateProject(id, project)
+        return userProjectService.updateUserProject(id, project)
                 .map(updatedProject -> new ResponseEntity<>(updatedProject, HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProject(@PathVariable Long id) {
-        if (userProjectService.deleteProject(id)) {
+        if (userProjectService.deleteUserProject(id)) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -56,8 +57,8 @@ public class UserProjectController {
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<UserProject>> getProjectsByUserId(@PathVariable Long userId) {
-        List<UserProject> projects = userProjectService.getProjectsByUserId(userId);
+    public ResponseEntity<Optional<UserProject>> getProjectsByUserId(@PathVariable Long userId) {
+        Optional<UserProject> projects = userProjectService.getUserProjectById(userId);
         return new ResponseEntity<>(projects, HttpStatus.OK);
     }
 }

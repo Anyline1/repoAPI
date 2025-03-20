@@ -13,9 +13,9 @@ public interface UserProjectService {
 
     List<UserProject> getAllUserProjects(Long userId);
 
-    UserProject updateUserProject(UserProject userProject);
+    Optional<UserProject> updateUserProject(Long id, UserProject project);
 
-    void deleteUserProject(Long id);
+    boolean deleteUserProject(Long id);
 
     List<UserProject> findUserProjectsByName(String projectName);
 
