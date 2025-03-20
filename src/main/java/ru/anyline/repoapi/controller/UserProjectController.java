@@ -8,6 +8,7 @@ import ru.anyline.repoapi.model.UserProject;
 import ru.anyline.repoapi.service.UserProjectServiceImpl;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/projects")
@@ -56,8 +57,8 @@ public class UserProjectController {
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<UserProject>> getProjectsByUserId(@PathVariable Long userId) {
-        List<UserProject> projects = userProjectService.getProjectsByUserId(userId);
+    public ResponseEntity<Optional<UserProject>> getProjectsByUserId(@PathVariable Long userId) {
+        Optional<UserProject> projects = userProjectService.getUserProjectById(userId);
         return new ResponseEntity<>(projects, HttpStatus.OK);
     }
 }
