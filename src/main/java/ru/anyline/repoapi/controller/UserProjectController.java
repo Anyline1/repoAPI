@@ -16,13 +16,13 @@ public class UserProjectController {
     private final UserProjectServiceImpl userProjectService;
 
     @Autowired
-    public UserProjectController(UserProjectService userProjectService) {
+    public UserProjectController(UserProjectServiceImpl userProjectService) {
         this.userProjectService = userProjectService;
     }
 
     @PostMapping
     public ResponseEntity<UserProject> createProject(@RequestBody UserProject project) {
-        UserProject createdProject = userProjectService.createProject(project);
+        UserProject createdProject = userProjectService.createUserProject(project);
         return new ResponseEntity<>(createdProject, HttpStatus.CREATED);
     }
 
