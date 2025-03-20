@@ -39,8 +39,9 @@ public class UserProjectServiceImpl implements UserProjectService {
     }
 
     @Override
-    public void deleteUserProject(Long id) {
+    public boolean deleteUserProject(Long id) {
         userProjectRepository.deleteById(id);
+        return false;
     }
 
     @Override

@@ -48,7 +48,7 @@ public class UserProjectController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProject(@PathVariable Long id) {
-        if (userProjectService.deleteProject(id)) {
+        if (userProjectService.deleteUserProject(id)) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
