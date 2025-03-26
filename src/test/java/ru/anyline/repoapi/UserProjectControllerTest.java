@@ -58,4 +58,16 @@ class UserProjectControllerTest {
         verify(userProjectService).createUserProject(project);
     }
 
+    @Test
+    void createProject_shouldHandleServiceException() {
+        UserProject project = new UserProject();
+        when(userProjectService.createUserProject(project)).thenThrow(new RuntimeException("Service error"));
+
+        ResponseEntity<UserProject> response = userProjectController.createProject(project);
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        assertEquals(null, response.getBody());
+        verify(userProjectService).createUserProject(project);
+    }
+
 }
