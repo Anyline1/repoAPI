@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import ru.anyline.repoapi.controller.UserProjectController;
+import ru.anyline.repoapi.model.UserProject;
 import ru.anyline.repoapi.service.UserProjectServiceImpl;
 
 class UserProjectControllerTest {
