@@ -3,6 +3,7 @@ package ru.anyline.repoapi;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.springframework.http.ResponseEntity;
 import ru.anyline.repoapi.controller.UserProjectController;
 import ru.anyline.repoapi.model.UserProject;
 import ru.anyline.repoapi.service.UserProjectServiceImpl;
