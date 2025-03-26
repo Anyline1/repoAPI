@@ -47,4 +47,15 @@ class UserProjectControllerTest {
         verify(userProjectService).createUserProject(project);
     }
 
+    @Test
+    void createProject_shouldCallUserProjectServiceWithSubmittedProject() {
+        UserProject project = new UserProject();
+        UserProject createdProject = new UserProject();
+        when(userProjectService.createUserProject(project)).thenReturn(createdProject);
+
+        userProjectController.createProject(project);
+
+        verify(userProjectService).createUserProject(project);
+    }
+
 }
