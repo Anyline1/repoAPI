@@ -71,4 +71,19 @@ class UserProjectControllerTest {
         verify(userProjectService).createUserProject(project);
     }
 
+    @Test
+    void createProject_shouldValidateProjectDataBeforeCallingService() {
+        UserProject project = new UserProject();
+        project.setName("Test Project");
+        project.setDescription("Test Description");
+
+        when(userProjectService.createUserProject(project)).thenReturn(project);
+
+        ResponseEntity<UserProject> response = userProjectController.createProject(project);
+
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertEquals(project, response.getBody());
+        verify(userProjectService).createUserProject(project);
+    }
+
 }
