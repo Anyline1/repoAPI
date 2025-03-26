@@ -34,4 +34,17 @@ class UserProjectControllerTest {
         verify(userProjectService).createUserProject(project);
     }
 
+    @Test
+    void createProject_shouldReturnCreatedProjectInResponseBody() {
+        UserProject project = new UserProject();
+        UserProject createdProject = new UserProject();
+        createdProject.setId(1L);
+        when(userProjectService.createUserProject(project)).thenReturn(createdProject);
+
+        ResponseEntity<UserProject> response = userProjectController.createProject(project);
+
+        assertEquals(createdProject, response.getBody());
+        verify(userProjectService).createUserProject(project);
+    }
+
 }
