@@ -16,7 +16,6 @@ public class UserProjectController {
 
     private final UserProjectServiceImpl userProjectService;
 
-    @Autowired
     public UserProjectController(UserProjectServiceImpl userProjectService) {
         this.userProjectService = userProjectService;
     }
