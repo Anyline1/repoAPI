@@ -13,4 +13,17 @@ class UserProjectControllerTest {
     @InjectMocks
     private UserProjectController userProjectController;
 
+    @Test
+    void createProject_shouldReturnCreatedStatus() {
+        UserProject project = new UserProject();
+        UserProject createdProject = new UserProject();
+        when(userProjectService.createUserProject(project)).thenReturn(createdProject);
+
+        ResponseEntity<UserProject> response = userProjectController.createProject(project);
+
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertEquals(createdProject, response.getBody());
+        verify(userProjectService).createUserProject(project);
+    }
+
 }
