@@ -10,6 +10,7 @@ import ru.anyline.repoapi.model.UserProject;
 import ru.anyline.repoapi.service.UserProjectServiceImpl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -66,7 +67,7 @@ class UserProjectControllerTest {
         ResponseEntity<UserProject> response = userProjectController.createProject(project);
 
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-        assertEquals(null, response.getBody());
+        assertNull(response.getBody());
         verify(userProjectService).createUserProject(project);
     }
 
