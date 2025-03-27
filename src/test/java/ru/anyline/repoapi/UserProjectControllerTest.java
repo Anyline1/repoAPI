@@ -13,6 +13,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.any;
 
 class UserProjectControllerTest {
 
@@ -84,6 +86,29 @@ class UserProjectControllerTest {
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertEquals(project, response.getBody());
         verify(userProjectService).createUserProject(project);
+    }
+
+    @Test
+    void createProject_shouldReturnBadRequestWhenProjectInputIsNull() {
+        UserProject project = null;
+
+        ResponseEntity<UserProject> response = userProjectController.createProject(project);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNull(response.getBody());
+        verify(userProjectService, never()).createUserProject(any());
+    }
+
+    @Test
+    void createProject_shouldHandleProjectWithNullNameAndValidDescription() {
+        UserProject project = new UserProject();
+        project.setDescription("Test Description");
+
+        ResponseEntity<UserProject> response = userProjectController.createProject(project);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNull(response.getBody());
+        verify(userProjectService, never()).createUserProject(any());
     }
 
 }
