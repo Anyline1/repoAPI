@@ -97,6 +97,16 @@ class UserProjectControllerTest {
         verify(userProjectService, never()).createUserProject(any());
     }
 
-    
+    @Test
+    void createProject_shouldHandleProjectWithNullNameAndValidDescription() {
+        UserProject project = new UserProject();
+        project.setDescription("Test Description");
+
+        ResponseEntity<UserProject> response = userProjectController.createProject(project);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNull(response.getBody());
+        verify(userProjectService, never()).createUserProject(any());
+    }
 
 }
