@@ -86,4 +86,17 @@ class UserProjectControllerTest {
         verify(userProjectService).createUserProject(project);
     }
 
+    @Test
+    void createProject_shouldReturnBadRequestWhenProjectInputIsNull() {
+        UserProject project = null;
+
+        ResponseEntity<UserProject> response = userProjectController.createProject(project);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNull(response.getBody());
+        verify(userProjectService, never()).createUserProject(any());
+    }
+
+    
+
 }
