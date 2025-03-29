@@ -111,4 +111,16 @@ class UserProjectControllerTest {
         verify(userProjectService, never()).createUserProject(any());
     }
 
+    @Test
+    void getProjectById_shouldReturnNotFoundWhenProjectDoesNotExist() {
+        Long nonExistentId = 100L;
+        when(userProjectService.getUserProjectById(nonExistentId)).thenReturn(Optional.empty());
+
+        ResponseEntity<UserProject> response = userProjectController.getProjectById(nonExistentId);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNull(response.getBody());
+        verify(userProjectService).getUserProjectById(nonExistentId);
+    }
+
 }
