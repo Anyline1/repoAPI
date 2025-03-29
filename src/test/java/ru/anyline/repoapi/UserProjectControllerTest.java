@@ -127,7 +127,7 @@ class UserProjectControllerTest {
 
     @Test
     void getProjectById_shouldReturnOkStatusAndProjectDataWhenProjectExists() {
-        Long existingId = 1L;
+        Long existingId = 2L;
         UserProject existingProject = new UserProject();
         existingProject.setId(existingId);
         when(userProjectService.getUserProjectById(existingId)).thenReturn(Optional.of(existingProject));
