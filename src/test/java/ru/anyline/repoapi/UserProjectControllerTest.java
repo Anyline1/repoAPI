@@ -9,6 +9,8 @@ import ru.anyline.repoapi.controller.UserProjectController;
 import ru.anyline.repoapi.model.UserProject;
 import ru.anyline.repoapi.service.UserProjectServiceImpl;
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.verify;
@@ -109,6 +111,32 @@ class UserProjectControllerTest {
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertNull(response.getBody());
         verify(userProjectService, never()).createUserProject(any());
+    }
+
+    @Test
+    void getProjectById_shouldReturnNotFoundWhenProjectDoesNotExist() {
+        Long nonExistentId = 1000L;
+        when(userProjectService.getUserProjectById(nonExistentId)).thenReturn(Optional.empty());
+
+        ResponseEntity<UserProject> response = userProjectController.getProjectById(nonExistentId);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNull(response.getBody());
+        verify(userProjectService).getUserProjectById(nonExistentId);
+    }
+
+    @Test
+    void getProjectById_shouldReturnOkStatusAndProjectDataWhenProjectExists() {
+        Long existingId = 2L;
+        UserProject existingProject = new UserProject();
+        existingProject.setId(existingId);
+        when(userProjectService.getUserProjectById(existingId)).thenReturn(Optional.of(existingProject));
+
+        ResponseEntity<UserProject> response = userProjectController.getProjectById(existingId);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(existingProject, response.getBody());
+        verify(userProjectService).getUserProjectById(existingId);
     }
 
 }
