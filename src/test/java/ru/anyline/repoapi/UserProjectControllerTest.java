@@ -125,4 +125,18 @@ class UserProjectControllerTest {
         verify(userProjectService).getUserProjectById(nonExistentId);
     }
 
+    @Test
+    void getProjectById_shouldReturnOkStatusAndProjectDataWhenProjectExists() {
+        Long existingId = 1L;
+        UserProject existingProject = new UserProject();
+        existingProject.setId(existingId);
+        when(userProjectService.getUserProjectById(existingId)).thenReturn(Optional.of(existingProject));
+
+        ResponseEntity<UserProject> response = userProjectController.getProjectById(existingId);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(existingProject, response.getBody());
+        verify(userProjectService).getUserProjectById(existingId);
+    }
+
 }
