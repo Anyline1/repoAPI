@@ -115,7 +115,7 @@ class UserProjectControllerTest {
 
     @Test
     void getProjectById_shouldReturnNotFoundWhenProjectDoesNotExist() {
-        Long nonExistentId = 100L;
+        Long nonExistentId = 1000L;
         when(userProjectService.getUserProjectById(nonExistentId)).thenReturn(Optional.empty());
 
         ResponseEntity<UserProject> response = userProjectController.getProjectById(nonExistentId);
