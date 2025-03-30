@@ -44,7 +44,7 @@ public class UserReposController {
             } catch (HttpServerErrorException e) {
                 model.addAttribute("error", "Server error: " + e.getStatusCode() + " - " + e.getResponseBodyAsString());
             } catch (ResourceAccessException e) {
-                model.addAttribute("error", "Resource access error: Unable to connect to the server. Please try again later.");
+                model.addAttribute("error", "Resource access error: Unable to connect to the server.");
             } catch (Exception e) {
                 throw new UserReposException("An unexpected error occurred while fetching repositories.", e);
             }
