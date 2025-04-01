@@ -212,4 +212,26 @@ class UserProjectControllerTest {
         assertNull(response.getBody());
         verify(userProjectService, never()).updateUserProject(anyLong(), any());
     }
+
+    @Test
+    void updateProject_shouldReturnUpdatedProjectData() {
+        Long existingProjectId = 2L;
+        UserProject existingProject = new UserProject();
+        existingProject.setId(existingProjectId);
+        existingProject.setName("Test Project");
+        existingProject.setDescription("Test Description");
+
+        UserProject updatedProject = new UserProject();
+        updatedProject.setId(existingProjectId);
+        updatedProject.setName("Updated Test Project");
+        updatedProject.setDescription("Updated Test Description");
+
+        when(userProjectService.updateUserProject(existingProjectId, updatedProject)).thenReturn(Optional.of(updatedProject));
+
+        ResponseEntity<UserProject> response = userProjectController.updateProject(existingProjectId, updatedProject);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(updatedProject, response.getBody());
+        verify(userProjectService).updateUserProject(existingProjectId, updatedProject);
+    }
 }
