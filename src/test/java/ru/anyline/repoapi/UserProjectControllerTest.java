@@ -198,4 +198,18 @@ class UserProjectControllerTest {
         assertNull(response.getBody());
         verify(userProjectService, never()).updateUserProject(anyLong(), any());
     }
+
+    @Test
+    void updateProject_shouldHandleProjectWithNullNameAndValidDescription() {
+        Long existingProjectId = 2L;
+        UserProject updatedProject = new UserProject();
+        updatedProject.setId(existingProjectId);
+        updatedProject.setDescription("Updated Test Description");
+
+        ResponseEntity<UserProject> response = userProjectController.updateProject(existingProjectId, updatedProject);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNull(response.getBody());
+        verify(userProjectService, never()).updateUserProject(anyLong(), any());
+    }
 }
