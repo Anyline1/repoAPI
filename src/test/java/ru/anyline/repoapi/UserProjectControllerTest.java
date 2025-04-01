@@ -262,4 +262,15 @@ class UserProjectControllerTest {
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
         verify(userProjectService).deleteUserProject(existingProjectId);
     }
+
+    @Test
+    void deleteProject_shouldReturnNoContentStatusWhenDeletingAProject() {
+        Long existingProjectId = 2L;
+        when(userProjectService.deleteUserProject(existingProjectId)).thenReturn(true);
+
+        ResponseEntity<Void> response = userProjectController.deleteProject(existingProjectId);
+
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        verify(userProjectService).deleteUserProject(existingProjectId);
+    }
 }
