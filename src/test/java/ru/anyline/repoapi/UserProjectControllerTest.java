@@ -139,4 +139,16 @@ class UserProjectControllerTest {
         verify(userProjectService).getUserProjectById(existingId);
     }
 
+    @Test
+    void getAllProjects_shouldReturnAllProjects() {
+        List<UserProject> expectedProjects = Arrays.asList(new UserProject(), new UserProject());
+        when(userProjectService.getAllProjects()).thenReturn(expectedProjects);
+
+        ResponseEntity<List<UserProject>> response = userProjectController.getAllProjects();
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(expectedProjects, response.getBody());
+        verify(userProjectService).getAllProjects();
+    }
+
 }
