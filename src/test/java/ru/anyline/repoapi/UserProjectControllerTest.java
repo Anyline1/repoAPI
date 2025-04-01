@@ -234,4 +234,21 @@ class UserProjectControllerTest {
         assertEquals(updatedProject, response.getBody());
         verify(userProjectService).updateUserProject(existingProjectId, updatedProject);
     }
+
+    @Test
+    void updateProject_shouldReturnNotFoundWhenUpdatingANonExistentProject() {
+        Long nonExistentProjectId = 1000L;
+        UserProject updatedProject = new UserProject();
+        updatedProject.setId(nonExistentProjectId);
+        updatedProject.setName("Updated Test Project");
+        updatedProject.setDescription("Updated Test Description");
+
+        when(userProjectService.updateUserProject(nonExistentProjectId, updatedProject)).thenReturn(Optional.empty());
+
+        ResponseEntity<UserProject> response = userProjectController.updateProject(nonExistentProjectId, updatedProject);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNull(response.getBody());
+        verify(userProjectService).updateUserProject(nonExistentProjectId, updatedProject);
+    }
 }
