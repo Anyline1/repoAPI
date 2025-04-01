@@ -153,4 +153,14 @@ class UserProjectControllerTest {
         verify(userProjectService).getAllProjects();
     }
 
+    @Test
+    void getAllProjects_shouldHandleExceptionWhenServiceThrowsException() {
+        when(userProjectService.getAllProjects()).thenThrow(new RuntimeException("Service error"));
+
+        ResponseEntity<List<UserProject>> response = userProjectController.getAllProjects();
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        assertNull(response.getBody());
+        verify(userProjectService).getAllProjects();
+    }
 }
