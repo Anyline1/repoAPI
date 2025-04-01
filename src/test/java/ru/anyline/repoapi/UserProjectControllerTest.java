@@ -185,4 +185,16 @@ class UserProjectControllerTest {
         assertEquals(updatedProject, response.getBody());
         verify(userProjectService).updateUserProject(existingProjectId, updatedProject);
     }
+
+    @Test
+    void updateProject_shouldReturnBadRequestWhenProjectInputIsNull() {
+        Long existingProjectId = 2L;
+        UserProject updatedProject = null;
+
+        ResponseEntity<UserProject> response = userProjectController.updateProject(existingProjectId, updatedProject);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNull(response.getBody());
+        verify(userProjectService, never()).updateUserProject(anyLong(), any());
+    }
 }
