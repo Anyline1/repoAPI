@@ -273,4 +273,15 @@ class UserProjectControllerTest {
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
         verify(userProjectService).deleteUserProject(existingProjectId);
     }
+
+    @Test
+    void deleteProject_shouldReturnNotFoundWhenDeletingANonExistentProject() {
+        Long nonExistentProjectId = 1000L;
+        when(userProjectService.deleteUserProject(nonExistentProjectId)).thenReturn(false);
+
+        ResponseEntity<Void> response = userProjectController.deleteProject(nonExistentProjectId);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        verify(userProjectService).deleteUserProject(nonExistentProjectId);
+    }
 }
