@@ -9,10 +9,13 @@ import ru.anyline.repoapi.controller.UserProjectController;
 import ru.anyline.repoapi.model.UserProject;
 import ru.anyline.repoapi.service.UserProjectServiceImpl;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.never;
@@ -139,4 +142,124 @@ class UserProjectControllerTest {
         verify(userProjectService).getUserProjectById(existingId);
     }
 
+    @Test
+    void getAllProjects_shouldReturnAllProjects() {
+        List<UserProject> expectedProjects = Arrays.asList(new UserProject(), new UserProject());
+        when(userProjectService.getAllProjects()).thenReturn(expectedProjects);
+
+        ResponseEntity<List<UserProject>> response = userProjectController.getAllProjects();
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(expectedProjects, response.getBody());
+        verify(userProjectService).getAllProjects();
+    }
+
+    @Test
+    void getAllProjects_shouldHandleExceptionWhenServiceThrowsException() {
+        when(userProjectService.getAllProjects()).thenThrow(new RuntimeException("Service error"));
+
+        ResponseEntity<List<UserProject>> response = userProjectController.getAllProjects();
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        assertNull(response.getBody());
+        verify(userProjectService).getAllProjects();
+    }
+
+    @Test
+    void updateProject_shouldValidateProjectDataBeforeUpdatingProject() {
+        Long existingProjectId = 2L;
+        UserProject existingProject = new UserProject();
+        existingProject.setId(existingProjectId);
+        existingProject.setName("Test Project");
+        existingProject.setDescription("Test Description");
+
+        UserProject updatedProject = new UserProject();
+        updatedProject.setId(existingProjectId);
+        updatedProject.setName("Updated Test Project");
+        updatedProject.setDescription("Updated Test Description");
+
+        when(userProjectService.updateUserProject(existingProjectId, updatedProject)).thenReturn(Optional.of(updatedProject));
+
+        ResponseEntity<UserProject> response = userProjectController.updateProject(existingProjectId, updatedProject);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(updatedProject, response.getBody());
+        verify(userProjectService).updateUserProject(existingProjectId, updatedProject);
+    }
+
+    @Test
+    void updateProject_shouldReturnBadRequestWhenProjectInputIsNull() {
+        Long existingProjectId = 2L;
+        UserProject updatedProject = null;
+
+        ResponseEntity<UserProject> response = userProjectController.updateProject(existingProjectId, updatedProject);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNull(response.getBody());
+        verify(userProjectService, never()).updateUserProject(anyLong(), any());
+    }
+
+    @Test
+    void updateProject_shouldHandleProjectWithNullNameAndValidDescription() {
+        Long existingProjectId = 2L;
+        UserProject updatedProject = new UserProject();
+        updatedProject.setId(existingProjectId);
+        updatedProject.setDescription("Updated Test Description");
+
+        ResponseEntity<UserProject> response = userProjectController.updateProject(existingProjectId, updatedProject);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNull(response.getBody());
+        verify(userProjectService, never()).updateUserProject(anyLong(), any());
+    }
+
+    @Test
+    void updateProject_shouldReturnUpdatedProjectData() {
+        Long existingProjectId = 2L;
+        UserProject existingProject = new UserProject();
+        existingProject.setId(existingProjectId);
+        existingProject.setName("Test Project");
+        existingProject.setDescription("Test Description");
+
+        UserProject updatedProject = new UserProject();
+        updatedProject.setId(existingProjectId);
+        updatedProject.setName("Updated Test Project");
+        updatedProject.setDescription("Updated Test Description");
+
+        when(userProjectService.updateUserProject(existingProjectId, updatedProject)).thenReturn(Optional.of(updatedProject));
+
+        ResponseEntity<UserProject> response = userProjectController.updateProject(existingProjectId, updatedProject);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(updatedProject, response.getBody());
+        verify(userProjectService).updateUserProject(existingProjectId, updatedProject);
+    }
+
+    @Test
+    void updateProject_shouldReturnNotFoundWhenUpdatingANonExistentProject() {
+        Long nonExistentProjectId = 1000L;
+        UserProject updatedProject = new UserProject();
+        updatedProject.setId(nonExistentProjectId);
+        updatedProject.setName("Updated Test Project");
+        updatedProject.setDescription("Updated Test Description");
+
+        when(userProjectService.updateUserProject(nonExistentProjectId, updatedProject)).thenReturn(Optional.empty());
+
+        ResponseEntity<UserProject> response = userProjectController.updateProject(nonExistentProjectId, updatedProject);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNull(response.getBody());
+        verify(userProjectService).updateUserProject(nonExistentProjectId, updatedProject);
+    }
+
+    @Test
+    void deleteProject_shouldDeleteProjectWhenDeleteProjectMethodIsCalled() {
+        Long existingProjectId = 2L;
+        when(userProjectService.deleteUserProject(existingProjectId)).thenReturn(true);
+
+        ResponseEntity<Void> response = userProjectController.deleteProject(existingProjectId);
+
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        verify(userProjectService).deleteUserProject(existingProjectId);
+    }
 }
