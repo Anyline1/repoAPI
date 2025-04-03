@@ -285,4 +285,18 @@ class UserProjectControllerTest {
         verify(userProjectService).deleteUserProject(nonExistentProjectId);
     }
 
+    @Test
+    void updateProject_shouldReturnBadRequestWhenInvalidIdFormat() {
+        String invalidId = "invalid";
+        UserProject project = new UserProject();
+        project.setName("Updated Project");
+        project.setDescription("Updated Description");
+
+        ResponseEntity<UserProject> response = userProjectController.updateProject(invalidId, project);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNull(response.getBody());
+        verify(userProjectService, never()).updateUserProject(any(), any());
+    }
+
 }
