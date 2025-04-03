@@ -40,11 +40,27 @@ public class UserProjectController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserProject> updateProject(@PathVariable Long id, @RequestBody UserProject project) {
-        return userProjectService.updateUserProject(id, project)
-                .map(updatedProject -> new ResponseEntity<>(updatedProject, HttpStatus.OK))
-                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    public ResponseEntity<UserProject> updateProject(String id, UserProject project) {
+        if (project == null || project.getName() == null || project.getName().trim().isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        Long projectId;
+        try {
+            projectId = Long.parseLong(id);
+            if (projectId <= 0) {
+                return ResponseEntity.badRequest().build();
+            }
+        } catch (NumberFormatException e) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        Optional<UserProject> updatedProject = userProjectService.updateUserProject(projectId, project);
+        return updatedProject
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProject(@PathVariable Long id) {
