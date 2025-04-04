@@ -322,9 +322,8 @@ class UserProjectControllerTest {
 
     @Test
     void deleteProject_shouldReturnBadRequestWhenIdIsNull() {
-        Long nullId = null;
 
-        ResponseEntity<Void> response = userProjectController.deleteProject(nullId);
+        ResponseEntity<Void> response = userProjectController.deleteProject(null);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         verify(userProjectService, never()).deleteUserProject(any());
