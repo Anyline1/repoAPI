@@ -180,7 +180,7 @@ class UserProjectControllerTest {
 
         when(userProjectService.updateUserProject(existingProjectId, updatedProject)).thenReturn(Optional.of(updatedProject));
 
-        ResponseEntity<UserProject> response = userProjectController.updateProject(existingProjectId, updatedProject);
+        ResponseEntity<UserProject> response = userProjectController.updateProject(String.valueOf(existingProjectId), updatedProject);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(updatedProject, response.getBody());
@@ -192,7 +192,7 @@ class UserProjectControllerTest {
         Long existingProjectId = 2L;
         UserProject updatedProject = null;
 
-        ResponseEntity<UserProject> response = userProjectController.updateProject(existingProjectId, updatedProject);
+        ResponseEntity<UserProject> response = userProjectController.updateProject(String.valueOf(existingProjectId), updatedProject);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertNull(response.getBody());
@@ -206,7 +206,7 @@ class UserProjectControllerTest {
         updatedProject.setId(existingProjectId);
         updatedProject.setDescription("Updated Test Description");
 
-        ResponseEntity<UserProject> response = userProjectController.updateProject(existingProjectId, updatedProject);
+        ResponseEntity<UserProject> response = userProjectController.updateProject(String.valueOf(existingProjectId), updatedProject);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertNull(response.getBody());
@@ -228,7 +228,7 @@ class UserProjectControllerTest {
 
         when(userProjectService.updateUserProject(existingProjectId, updatedProject)).thenReturn(Optional.of(updatedProject));
 
-        ResponseEntity<UserProject> response = userProjectController.updateProject(existingProjectId, updatedProject);
+        ResponseEntity<UserProject> response = userProjectController.updateProject(String.valueOf(existingProjectId), updatedProject);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(updatedProject, response.getBody());
@@ -245,7 +245,7 @@ class UserProjectControllerTest {
 
         when(userProjectService.updateUserProject(nonExistentProjectId, updatedProject)).thenReturn(Optional.empty());
 
-        ResponseEntity<UserProject> response = userProjectController.updateProject(nonExistentProjectId, updatedProject);
+        ResponseEntity<UserProject> response = userProjectController.updateProject(String.valueOf(nonExistentProjectId), updatedProject);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertNull(response.getBody());
@@ -298,5 +298,46 @@ class UserProjectControllerTest {
         assertNull(response.getBody());
         verify(userProjectService, never()).updateUserProject(any(), any());
     }
+
+    @Test
+    void deleteProject_shouldHandleExceptionWhenServiceThrowsException() {
+        Long projectId = 1L;
+        when(userProjectService.deleteUserProject(projectId)).thenThrow(new RuntimeException("Service error"));
+
+        ResponseEntity<Void> response = userProjectController.deleteProject(projectId);
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        verify(userProjectService).deleteUserProject(projectId);
+    }
+
+    @Test
+    void deleteProject_shouldCallDeleteUserProjectWithCorrectId() {
+        Long projectId = 1L;
+        when(userProjectService.deleteUserProject(projectId)).thenReturn(true);
+
+        userProjectController.deleteProject(projectId);
+
+        verify(userProjectService).deleteUserProject(projectId);
+    }
+
+    @Test
+    void deleteProject_shouldReturnBadRequestWhenIdIsNull() {
+
+        ResponseEntity<Void> response = userProjectController.deleteProject(null);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        verify(userProjectService, never()).deleteUserProject(any());
+    }
+
+    @Test
+    void deleteProject_shouldReturnBadRequestWhenIdIsNegative() {
+        Long negativeId = -1L;
+
+        ResponseEntity<Void> response = userProjectController.deleteProject(negativeId);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        verify(userProjectService, never()).deleteUserProject(any());
+    }
+
 
 }
