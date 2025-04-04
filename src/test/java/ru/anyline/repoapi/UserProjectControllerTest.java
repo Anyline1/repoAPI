@@ -245,7 +245,7 @@ class UserProjectControllerTest {
 
         when(userProjectService.updateUserProject(nonExistentProjectId, updatedProject)).thenReturn(Optional.empty());
 
-        ResponseEntity<UserProject> response = userProjectController.updateProject(nonExistentProjectId, updatedProject);
+        ResponseEntity<UserProject> response = userProjectController.updateProject(String.valueOf(nonExistentProjectId), updatedProject);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertNull(response.getBody());
