@@ -192,7 +192,7 @@ class UserProjectControllerTest {
         Long existingProjectId = 2L;
         UserProject updatedProject = null;
 
-        ResponseEntity<UserProject> response = userProjectController.updateProject(existingProjectId, updatedProject);
+        ResponseEntity<UserProject> response = userProjectController.updateProject(String.valueOf(existingProjectId), updatedProject);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertNull(response.getBody());
