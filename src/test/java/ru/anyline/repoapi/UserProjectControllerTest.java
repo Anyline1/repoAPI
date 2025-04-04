@@ -310,4 +310,14 @@ class UserProjectControllerTest {
         verify(userProjectService).deleteUserProject(projectId);
     }
 
+    @Test
+    void deleteProject_shouldCallDeleteUserProjectWithCorrectId() {
+        Long projectId = 1L;
+        when(userProjectService.deleteUserProject(projectId)).thenReturn(true);
+
+        userProjectController.deleteProject(projectId);
+
+        verify(userProjectService).deleteUserProject(projectId);
+    }
+
 }
