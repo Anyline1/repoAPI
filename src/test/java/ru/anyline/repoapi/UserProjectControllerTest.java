@@ -299,4 +299,15 @@ class UserProjectControllerTest {
         verify(userProjectService, never()).updateUserProject(any(), any());
     }
 
+    @Test
+    void deleteProject_shouldHandleExceptionWhenServiceThrowsException() {
+        Long projectId = 1L;
+        when(userProjectService.deleteUserProject(projectId)).thenThrow(new RuntimeException("Service error"));
+
+        ResponseEntity<Void> response = userProjectController.deleteProject(projectId);
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        verify(userProjectService).deleteUserProject(projectId);
+    }
+
 }
