@@ -45,7 +45,7 @@ public class UserProjectController {
             return ResponseEntity.badRequest().build();
         }
 
-        Long projectId;
+        long projectId;
         try {
             projectId = Long.parseLong(id);
             if (projectId <= 0) {
