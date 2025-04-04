@@ -228,7 +228,7 @@ class UserProjectControllerTest {
 
         when(userProjectService.updateUserProject(existingProjectId, updatedProject)).thenReturn(Optional.of(updatedProject));
 
-        ResponseEntity<UserProject> response = userProjectController.updateProject(existingProjectId, updatedProject);
+        ResponseEntity<UserProject> response = userProjectController.updateProject(String.valueOf(existingProjectId), updatedProject);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(updatedProject, response.getBody());
