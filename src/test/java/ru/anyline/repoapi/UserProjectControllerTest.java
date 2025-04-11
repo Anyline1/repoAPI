@@ -397,7 +397,7 @@ class UserProjectControllerTest {
     @Test
     void deleteProject_shouldHandleCustomExceptionFromService() {
         Long projectId = 1L;
-        when(userProjectService.deleteUserProject(projectId)).thenThrow(new CustomProjectException("Custom error"));
+        when(userProjectService.deleteUserProject(projectId)).thenThrow(new Exception("Custom error"));
 
         ResponseEntity<Void> response = userProjectController.deleteProject(projectId);
 
@@ -409,7 +409,7 @@ class UserProjectControllerTest {
     void deleteProject_shouldHandleNetworkLatencyOrTimeout() {
         Long projectId = 1L;
         when(userProjectService.deleteUserProject(projectId)).thenAnswer(invocation -> {
-            Thread.sleep(5000); 
+            Thread.sleep(5000);
             return true;
         });
 
