@@ -360,4 +360,15 @@ class UserProjectControllerTest {
         verify(userProjectService, never()).deleteUserProject(any());
     }
 
+    @Test
+    void deleteProject_shouldHandleVeryLargeLongId() {
+        Long veryLargeId = Long.MAX_VALUE;
+        when(userProjectService.deleteUserProject(veryLargeId)).thenReturn(true);
+
+        ResponseEntity<Void> response = userProjectController.deleteProject(veryLargeId);
+
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        verify(userProjectService).deleteUserProject(veryLargeId);
+    }
+
 }
