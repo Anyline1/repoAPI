@@ -339,5 +339,16 @@ class UserProjectControllerTest {
         verify(userProjectService, never()).deleteUserProject(any());
     }
 
+    @Test
+    void deleteProject_shouldReturnInternalServerErrorWhenServiceThrowsUnexpectedException() {
+        Long projectId = 1L;
+        when(userProjectService.deleteUserProject(projectId)).thenThrow(new RuntimeException("Unexpected error"));
+
+        ResponseEntity<Void> response = userProjectController.deleteProject(projectId);
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        verify(userProjectService).deleteUserProject(projectId);
+    }
+
 
 }
