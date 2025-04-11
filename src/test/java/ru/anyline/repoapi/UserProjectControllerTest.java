@@ -350,5 +350,14 @@ class UserProjectControllerTest {
         verify(userProjectService).deleteUserProject(projectId);
     }
 
+    @Test
+    void deleteProject_shouldReturnBadRequestWhenIdIsZero() {
+        Long zeroId = 0L;
+
+        ResponseEntity<Void> response = userProjectController.deleteProject(zeroId);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        verify(userProjectService, never()).deleteUserProject(any());
+    }
 
 }
