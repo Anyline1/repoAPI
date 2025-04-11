@@ -16,10 +16,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.*;
 
 class UserProjectControllerTest {
 
@@ -339,5 +336,87 @@ class UserProjectControllerTest {
         verify(userProjectService, never()).deleteUserProject(any());
     }
 
+    @Test
+    void deleteProject_shouldReturnInternalServerErrorWhenServiceThrowsUnexpectedException() {
+        Long projectId = 1L;
+        when(userProjectService.deleteUserProject(projectId)).thenThrow(new RuntimeException("Unexpected error"));
+
+        ResponseEntity<Void> response = userProjectController.deleteProject(projectId);
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        verify(userProjectService).deleteUserProject(projectId);
+    }
+
+    @Test
+    void deleteProject_shouldReturnBadRequestWhenIdIsZero() {
+        Long zeroId = 0L;
+
+        ResponseEntity<Void> response = userProjectController.deleteProject(zeroId);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        verify(userProjectService, never()).deleteUserProject(any());
+    }
+
+    @Test
+    void deleteProject_shouldHandleVeryLargeLongId() {
+        Long veryLargeId = Long.MAX_VALUE;
+        when(userProjectService.deleteUserProject(veryLargeId)).thenReturn(true);
+
+        ResponseEntity<Void> response = userProjectController.deleteProject(veryLargeId);
+
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        verify(userProjectService).deleteUserProject(veryLargeId);
+    }
+
+    @Test
+    void deleteProject_shouldReturnNotFoundWhenServiceReturnsNull() {
+        Long projectId = 1L;
+        when(userProjectService.deleteUserProject(projectId)).thenReturn(null);
+
+        ResponseEntity<Void> response = userProjectController.deleteProject(projectId);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        verify(userProjectService).deleteUserProject(projectId);
+    }
+
+    @Test
+    void deleteProject_shouldHandleConcurrentDeleteRequests() {
+        Long projectId = 1L;
+        when(userProjectService.deleteUserProject(projectId))
+                .thenReturn(true)
+                .thenReturn(false);
+
+        ResponseEntity<Void> response1 = userProjectController.deleteProject(projectId);
+        ResponseEntity<Void> response2 = userProjectController.deleteProject(projectId);
+
+        assertEquals(HttpStatus.NO_CONTENT, response1.getStatusCode());
+        assertEquals(HttpStatus.NOT_FOUND, response2.getStatusCode());
+        verify(userProjectService, times(2)).deleteUserProject(projectId);
+    }
+
+    @Test
+    void deleteProject_shouldHandleCustomExceptionFromService() {
+        Long projectId = 1L;
+        when(userProjectService.deleteUserProject(projectId)).thenThrow(new Exception("Custom error"));
+
+        ResponseEntity<Void> response = userProjectController.deleteProject(projectId);
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        verify(userProjectService).deleteUserProject(projectId);
+    }
+
+    @Test
+    void deleteProject_shouldHandleNetworkLatencyOrTimeout() {
+        Long projectId = 1L;
+        when(userProjectService.deleteUserProject(projectId)).thenAnswer(invocation -> {
+            Thread.sleep(5000);
+            return true;
+        });
+
+        ResponseEntity<Void> response = userProjectController.deleteProject(projectId);
+
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        verify(userProjectService).deleteUserProject(projectId);
+    }
 
 }
