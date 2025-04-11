@@ -382,4 +382,19 @@ class UserProjectControllerTest {
         verify(userProjectService).deleteUserProject(projectId);
     }
 
+    @Test
+    void deleteProject_shouldHandleConcurrentDeleteRequests() {
+        Long projectId = 1L;
+        when(userProjectService.deleteUserProject(projectId))
+                .thenReturn(true)
+                .thenReturn(false);
+
+        ResponseEntity<Void> response1 = userProjectController.deleteProject(projectId);
+        ResponseEntity<Void> response2 = userProjectController.deleteProject(projectId);
+
+        assertEquals(HttpStatus.NO_CONTENT, response1.getStatusCode());
+        assertEquals(HttpStatus.NOT_FOUND, response2.getStatusCode());
+        verify(userProjectService, times(2)).deleteUserProject(projectId);
+    }
+
 }
