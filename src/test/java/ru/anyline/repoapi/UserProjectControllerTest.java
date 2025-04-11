@@ -394,4 +394,15 @@ class UserProjectControllerTest {
         verify(userProjectService, times(2)).deleteUserProject(projectId);
     }
 
+    @Test
+    void deleteProject_shouldHandleCustomExceptionFromService() {
+        Long projectId = 1L;
+        when(userProjectService.deleteUserProject(projectId)).thenThrow(new CustomProjectException("Custom error"));
+
+        ResponseEntity<Void> response = userProjectController.deleteProject(projectId);
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        verify(userProjectService).deleteUserProject(projectId);
+    }
+
 }
