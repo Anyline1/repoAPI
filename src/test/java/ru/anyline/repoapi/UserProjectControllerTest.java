@@ -405,4 +405,18 @@ class UserProjectControllerTest {
         verify(userProjectService).deleteUserProject(projectId);
     }
 
+    @Test
+    void deleteProject_shouldHandleNetworkLatencyOrTimeout() {
+        Long projectId = 1L;
+        when(userProjectService.deleteUserProject(projectId)).thenAnswer(invocation -> {
+            Thread.sleep(5000); 
+            return true;
+        });
+
+        ResponseEntity<Void> response = userProjectController.deleteProject(projectId);
+
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        verify(userProjectService).deleteUserProject(projectId);
+    }
+
 }
