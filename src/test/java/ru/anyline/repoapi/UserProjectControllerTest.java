@@ -448,7 +448,7 @@ class UserProjectControllerTest {
         int numberOfProjects = 1000;
         List<Long> projectIds = IntStream.rangeClosed(1, numberOfProjects)
                 .mapToObj(Long::valueOf)
-                .collect(Collectors.toList());
+                .toList();
 
         when(userProjectService.deleteUserProject(anyLong())).thenReturn(true);
 
