@@ -442,4 +442,27 @@ class UserProjectControllerTest {
         verify(userProjectService).deleteUserProject(projectId);
     }
 
+    @Test
+    void deleteProject_shouldHandleDeletingLargeNumberOfProjectsInSuccession() {
+        int numberOfProjects = 1000;
+        List<Long> projectIds = IntStream.rangeClosed(1, numberOfProjects)
+                .mapToObj(Long::valueOf)
+                .collect(Collectors.toList());
+
+        when(userProjectService.deleteUserProject(anyLong())).thenReturn(true);
+
+        long startTime = System.currentTimeMillis();
+
+        for (Long projectId : projectIds) {
+            ResponseEntity<Void> response = userProjectController.deleteProject(projectId);
+            assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        }
+
+        long endTime = System.currentTimeMillis();
+        long executionTime = endTime - startTime;
+
+        assertTrue(executionTime < 5000, "Deleting " + numberOfProjects + " projects took longer than 5 seconds");
+        verify(userProjectService, times(numberOfProjects)).deleteUserProject(anyLong());
+    }
+
 }
