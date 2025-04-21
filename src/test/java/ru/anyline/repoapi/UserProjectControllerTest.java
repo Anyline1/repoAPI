@@ -492,4 +492,28 @@ class UserProjectControllerTest {
         verify(userProjectService).deleteUserProject(projectId);
     }
 
+    @Test
+    void deleteProject_shouldDeleteProjectImmediatelyAfterCreation() {
+        UserProject project = new UserProject();
+        project.setName("Test Project");
+        project.setDescription("Test Description");
+
+        UserProject createdProject = new UserProject();
+        createdProject.setId(1L);
+        createdProject.setName(project.getName());
+        createdProject.setDescription(project.getDescription());
+
+        when(userProjectService.createUserProject(project)).thenReturn(createdProject);
+        when(userProjectService.deleteUserProject(1L)).thenReturn(true);
+
+        ResponseEntity<UserProject> createResponse = userProjectController.createProject(project);
+        assertEquals(HttpStatus.CREATED, createResponse.getStatusCode());
+
+        ResponseEntity<Void> deleteResponse = userProjectController.deleteProject(1L);
+        assertEquals(HttpStatus.NO_CONTENT, deleteResponse.getStatusCode());
+
+        verify(userProjectService).createUserProject(project);
+        verify(userProjectService).deleteUserProject(1L);
+    }
+
 }
