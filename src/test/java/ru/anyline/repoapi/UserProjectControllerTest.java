@@ -6,6 +6,7 @@ import org.mockito.Mock;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import ru.anyline.repoapi.controller.UserProjectController;
+import ru.anyline.repoapi.exceptions.ProjectNotFoundException;
 import ru.anyline.repoapi.model.UserProject;
 import ru.anyline.repoapi.service.UserProjectServiceImpl;
 
