@@ -431,4 +431,15 @@ class UserProjectControllerTest {
         verify(userProjectService).deleteUserProject(projectId);
     }
 
+    @Test
+    void deleteProject_shouldHandleProjectWithAssociatedData() {
+        Long projectId = 1L;
+        when(userProjectService.deleteUserProject(projectId)).thenThrow(new RuntimeException("Cannot delete project with associated data"));
+
+        ResponseEntity<Void> response = userProjectController.deleteProject(projectId);
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        verify(userProjectService).deleteUserProject(projectId);
+    }
+
 }
