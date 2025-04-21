@@ -466,4 +466,15 @@ class UserProjectControllerTest {
         verify(userProjectService, times(numberOfProjects)).deleteUserProject(anyLong());
     }
 
+    @Test
+    void deleteProject_shouldHandleMinimumAllowedProjectId() {
+        Long minimumId = 1L;
+        when(userProjectService.deleteUserProject(minimumId)).thenReturn(true);
+
+        ResponseEntity<Void> response = userProjectController.deleteProject(minimumId);
+
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        verify(userProjectService).deleteUserProject(minimumId);
+    }
+
 }
