@@ -419,4 +419,15 @@ class UserProjectControllerTest {
         verify(userProjectService).deleteUserProject(projectId);
     }
 
+    @Test
+    void deleteProject_shouldHandleProjectNotFoundException() {
+        Long projectId = 1L;
+        when(userProjectService.deleteUserProject(projectId)).thenThrow(new ProjectNotFoundException("Project not found"));
+
+        ResponseEntity<Void> response = userProjectController.deleteProject(projectId);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        verify(userProjectService).deleteUserProject(projectId);
+    }
+
 }
