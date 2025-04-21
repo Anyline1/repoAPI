@@ -6,15 +6,17 @@ import org.mockito.Mock;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import ru.anyline.repoapi.controller.UserProjectController;
+import ru.anyline.repoapi.exceptions.ProjectNotFoundException;
 import ru.anyline.repoapi.model.UserProject;
 import ru.anyline.repoapi.service.UserProjectServiceImpl;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
@@ -417,6 +419,101 @@ class UserProjectControllerTest {
 
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
         verify(userProjectService).deleteUserProject(projectId);
+    }
+
+    @Test
+    void deleteProject_shouldHandleProjectNotFoundException() {
+        Long projectId = 1L;
+        when(userProjectService.deleteUserProject(projectId)).thenThrow(new ProjectNotFoundException("Project not found"));
+
+        ResponseEntity<Void> response = userProjectController.deleteProject(projectId);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        verify(userProjectService).deleteUserProject(projectId);
+    }
+
+    @Test
+    void deleteProject_shouldHandleProjectWithAssociatedData() {
+        Long projectId = 1L;
+        when(userProjectService.deleteUserProject(projectId)).thenThrow(new RuntimeException("Cannot delete project with associated data"));
+
+        ResponseEntity<Void> response = userProjectController.deleteProject(projectId);
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        verify(userProjectService).deleteUserProject(projectId);
+    }
+
+    @Test
+    void deleteProject_shouldHandleDeletingLargeNumberOfProjectsInSuccession() {
+        int numberOfProjects = 1000;
+        List<Long> projectIds = IntStream.rangeClosed(1, numberOfProjects)
+                .mapToObj(Long::valueOf)
+                .toList();
+
+        when(userProjectService.deleteUserProject(anyLong())).thenReturn(true);
+
+        long startTime = System.currentTimeMillis();
+
+        for (Long projectId : projectIds) {
+            ResponseEntity<Void> response = userProjectController.deleteProject(projectId);
+            assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        }
+
+        long endTime = System.currentTimeMillis();
+        long executionTime = endTime - startTime;
+
+        assertTrue(executionTime < 5000, "Deleting " + numberOfProjects + " projects took longer than 5 seconds");
+        verify(userProjectService, times(numberOfProjects)).deleteUserProject(anyLong());
+    }
+
+    @Test
+    void deleteProject_shouldHandleMinimumAllowedProjectId() {
+        Long minimumId = 1L;
+        when(userProjectService.deleteUserProject(minimumId)).thenReturn(true);
+
+        ResponseEntity<Void> response = userProjectController.deleteProject(minimumId);
+
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        verify(userProjectService).deleteUserProject(minimumId);
+    }
+
+    @Test
+    void deleteProject_shouldHandleConcurrentModification() {
+        Long projectId = 1L;
+        when(userProjectService.deleteUserProject(projectId))
+                .thenAnswer(invocation -> {
+                    Thread.sleep(100);
+                    return false;
+                });
+
+        ResponseEntity<Void> response = userProjectController.deleteProject(projectId);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        verify(userProjectService).deleteUserProject(projectId);
+    }
+
+    @Test
+    void deleteProject_shouldDeleteProjectImmediatelyAfterCreation() {
+        UserProject project = new UserProject();
+        project.setName("Test Project");
+        project.setDescription("Test Description");
+
+        UserProject createdProject = new UserProject();
+        createdProject.setId(1L);
+        createdProject.setName(project.getName());
+        createdProject.setDescription(project.getDescription());
+
+        when(userProjectService.createUserProject(project)).thenReturn(createdProject);
+        when(userProjectService.deleteUserProject(1L)).thenReturn(true);
+
+        ResponseEntity<UserProject> createResponse = userProjectController.createProject(project);
+        assertEquals(HttpStatus.CREATED, createResponse.getStatusCode());
+
+        ResponseEntity<Void> deleteResponse = userProjectController.deleteProject(1L);
+        assertEquals(HttpStatus.NO_CONTENT, deleteResponse.getStatusCode());
+
+        verify(userProjectService).createUserProject(project);
+        verify(userProjectService).deleteUserProject(1L);
     }
 
 }
