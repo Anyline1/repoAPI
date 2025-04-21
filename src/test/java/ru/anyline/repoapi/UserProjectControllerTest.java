@@ -477,4 +477,19 @@ class UserProjectControllerTest {
         verify(userProjectService).deleteUserProject(minimumId);
     }
 
+    @Test
+    void deleteProject_shouldHandleConcurrentModification() {
+        Long projectId = 1L;
+        when(userProjectService.deleteUserProject(projectId))
+                .thenAnswer(invocation -> {
+                    Thread.sleep(100);
+                    return false;
+                });
+
+        ResponseEntity<Void> response = userProjectController.deleteProject(projectId);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        verify(userProjectService).deleteUserProject(projectId);
+    }
+
 }
