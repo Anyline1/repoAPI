@@ -575,4 +575,25 @@ class UserProjectControllerTest {
         verify(userProjectService).getUserProjectById(userId);
     }
 
+    @Test
+    void getProjectsByUserId_shouldHandleVeryLargeUserIdValues() {
+        Long veryLargeUserId = Long.MAX_VALUE;
+        UserProject expectedProject = new UserProject();
+        expectedProject.setId(veryLargeUserId);
+        expectedProject.setName("Large ID Project");
+        expectedProject.setDescription("Project with very large ID");
+
+        when(userProjectService.getUserProjectById(veryLargeUserId)).thenReturn(Optional.of(expectedProject));
+
+        ResponseEntity<Optional<UserProject>> response = userProjectController.getProjectsByUserId(veryLargeUserId);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertTrue(Objects.requireNonNull(response.getBody()).isPresent());
+        UserProject actualProject = response.getBody().get();
+        assertEquals(veryLargeUserId, actualProject.getId());
+        assertEquals("Large ID Project", actualProject.getName());
+        assertEquals("Project with very large ID", actualProject.getDescription());
+        verify(userProjectService).getUserProjectById(veryLargeUserId);
+    }
+
 }
