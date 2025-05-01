@@ -529,4 +529,16 @@ class UserProjectControllerTest {
         verify(userProjectService).getUserProjectById(userId);
     }
 
+    @Test
+    void getProjectsByUserId_shouldHandleServiceException() {
+        Long userId = 1L;
+        when(userProjectService.getUserProjectById(userId)).thenThrow(new RuntimeException("Service error"));
+
+        ResponseEntity<Optional<UserProject>> response = userProjectController.getProjectsByUserId(userId);
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        assertNull(response.getBody());
+        verify(userProjectService).getUserProjectById(userId);
+    }
+
 }
