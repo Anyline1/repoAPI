@@ -608,4 +608,26 @@ class UserProjectControllerTest {
         verify(userProjectService).getUserProjectById(userId);
     }
 
+    @Test
+    void getProjectsByUserId_shouldNotModifyProjectDataBeforeReturning() {
+        Long userId = 1L;
+        UserProject originalProject = new UserProject();
+        originalProject.setId(userId);
+        originalProject.setName("Original Project");
+        originalProject.setDescription("Original Description");
+
+        when(userProjectService.getUserProjectById(userId)).thenReturn(Optional.of(originalProject));
+
+        ResponseEntity<Optional<UserProject>> response = userProjectController.getProjectsByUserId(userId);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertTrue(Objects.requireNonNull(response.getBody()).isPresent());
+        UserProject returnedProject = response.getBody().get();
+        assertEquals(originalProject.getId(), returnedProject.getId());
+        assertEquals(originalProject.getName(), returnedProject.getName());
+        assertEquals(originalProject.getDescription(), returnedProject.getDescription());
+        assertSame(originalProject, returnedProject, "The returned project should be the same instance as the original");
+        verify(userProjectService).getUserProjectById(userId);
+    }
+
 }
