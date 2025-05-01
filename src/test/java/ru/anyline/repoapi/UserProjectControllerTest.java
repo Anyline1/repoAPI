@@ -641,4 +641,42 @@ class UserProjectControllerTest {
         verify(userProjectService, never()).getUserProjectById(any());
     }
 
+    @Test
+    void getProjectsByUserId_shouldHandleHighVolumeConcurrentRequests() throws InterruptedException {
+        int numberOfRequests = 1000;
+        CountDownLatch latch = new CountDownLatch(numberOfRequests);
+        ExecutorService executorService = Executors.newFixedThreadPool(10);
+        List<Future<ResponseEntity<Optional<UserProject>>>> futures = new ArrayList<>();
+
+        UserProject mockProject = new UserProject();
+        mockProject.setId(1L);
+        mockProject.setName("Test Project");
+        when(userProjectService.getUserProjectById(anyLong())).thenReturn(Optional.of(mockProject));
+
+        long startTime = System.currentTimeMillis();
+
+        for (int i = 0; i < numberOfRequests; i++) {
+            futures.add(executorService.submit(() -> {
+                ResponseEntity<Optional<UserProject>> response = userProjectController.getProjectsByUserId(1L);
+                latch.countDown();
+                return response;
+            }));
+        }
+
+        latch.await(10, TimeUnit.SECONDS);
+        long endTime = System.currentTimeMillis();
+
+        for (Future<ResponseEntity<Optional<UserProject>>> future : futures) {
+            ResponseEntity<Optional<UserProject>> response = future.get();
+            assertEquals(HttpStatus.OK, response.getStatusCode());
+            assertTrue(response.getBody().isPresent());
+        }
+
+        long duration = endTime - startTime;
+        assertTrue(duration < 5000, "High volume concurrent requests took too long: " + duration + "ms");
+
+        verify(userProjectService, times(numberOfRequests)).getUserProjectById(anyLong());
+        executorService.shutdown();
+    }
+
 }
