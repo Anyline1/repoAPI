@@ -640,7 +640,7 @@ class UserProjectControllerTest {
     }
 
     @Test
-    void getProjectsByUserId_shouldHandleHighVolumeConcurrentRequests() throws InterruptedException {
+    void getProjectsByUserId_shouldHandleHighVolumeConcurrentRequests() throws InterruptedException, ExecutionException {
         int numberOfRequests = 1000;
         CountDownLatch latch = new CountDownLatch(numberOfRequests);
         ExecutorService executorService = Executors.newFixedThreadPool(10);
