@@ -12,6 +12,7 @@ import ru.anyline.repoapi.service.UserProjectServiceImpl;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -524,7 +525,7 @@ class UserProjectControllerTest {
         ResponseEntity<Optional<UserProject>> response = userProjectController.getProjectsByUserId(userId);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertTrue(response.getBody().isEmpty());
+        assertTrue(Objects.requireNonNull(response.getBody()).isEmpty());
         verify(userProjectService).getUserProjectById(userId);
     }
 
