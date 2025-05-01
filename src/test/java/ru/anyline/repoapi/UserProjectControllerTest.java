@@ -10,9 +10,8 @@ import ru.anyline.repoapi.exceptions.ProjectNotFoundException;
 import ru.anyline.repoapi.model.UserProject;
 import ru.anyline.repoapi.service.UserProjectServiceImpl;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -514,6 +513,168 @@ class UserProjectControllerTest {
 
         verify(userProjectService).createUserProject(project);
         verify(userProjectService).deleteUserProject(1L);
+    }
+
+    @Test
+    void getProjectsByUserId_shouldReturnOkStatusAndEmptyOptionalWhenNoProjectFound() {
+        Long userId = 1L;
+        when(userProjectService.getUserProjectById(userId)).thenReturn(Optional.empty());
+
+        ResponseEntity<Optional<UserProject>> response = userProjectController.getProjectsByUserId(userId);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertTrue(Objects.requireNonNull(response.getBody()).isEmpty());
+        verify(userProjectService).getUserProjectById(userId);
+    }
+
+    @Test
+    void getProjectsByUserId_shouldHandleServiceException() {
+        Long userId = 1L;
+        when(userProjectService.getUserProjectById(userId)).thenThrow(new RuntimeException("Service error"));
+
+        ResponseEntity<Optional<UserProject>> response = userProjectController.getProjectsByUserId(userId);
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        assertNull(response.getBody());
+        verify(userProjectService).getUserProjectById(userId);
+    }
+
+    @Test
+    void getProjectsByUserId_shouldReturnBadRequestWhenUserIdIsNullOrNegative() {
+        ResponseEntity<Optional<UserProject>> responseNull = userProjectController.getProjectsByUserId(null);
+        assertEquals(HttpStatus.BAD_REQUEST, responseNull.getStatusCode());
+        assertNull(responseNull.getBody());
+
+        ResponseEntity<Optional<UserProject>> responseNegative = userProjectController.getProjectsByUserId(-1L);
+        assertEquals(HttpStatus.BAD_REQUEST, responseNegative.getStatusCode());
+        assertNull(responseNegative.getBody());
+
+        verify(userProjectService, never()).getUserProjectById(any());
+    }
+
+    @Test
+    void getProjectsByUserId_shouldReturnCorrectProjectData() {
+        Long userId = 1L;
+        UserProject expectedProject = new UserProject();
+        expectedProject.setId(userId);
+        expectedProject.setName("Test Project");
+        expectedProject.setDescription("Test Description");
+
+        when(userProjectService.getUserProjectById(userId)).thenReturn(Optional.of(expectedProject));
+
+        ResponseEntity<Optional<UserProject>> response = userProjectController.getProjectsByUserId(userId);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertTrue(Objects.requireNonNull(response.getBody()).isPresent());
+        UserProject actualProject = response.getBody().get();
+        assertEquals(expectedProject.getId(), actualProject.getId());
+        assertEquals(expectedProject.getName(), actualProject.getName());
+        assertEquals(expectedProject.getDescription(), actualProject.getDescription());
+        verify(userProjectService).getUserProjectById(userId);
+    }
+
+    @Test
+    void getProjectsByUserId_shouldHandleVeryLargeUserIdValues() {
+        Long veryLargeUserId = Long.MAX_VALUE;
+        UserProject expectedProject = new UserProject();
+        expectedProject.setId(veryLargeUserId);
+        expectedProject.setName("Large ID Project");
+        expectedProject.setDescription("Project with very large ID");
+
+        when(userProjectService.getUserProjectById(veryLargeUserId)).thenReturn(Optional.of(expectedProject));
+
+        ResponseEntity<Optional<UserProject>> response = userProjectController.getProjectsByUserId(veryLargeUserId);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertTrue(Objects.requireNonNull(response.getBody()).isPresent());
+        UserProject actualProject = response.getBody().get();
+        assertEquals(veryLargeUserId, actualProject.getId());
+        assertEquals("Large ID Project", actualProject.getName());
+        assertEquals("Project with very large ID", actualProject.getDescription());
+        verify(userProjectService).getUserProjectById(veryLargeUserId);
+    }
+
+    @Test
+    void getProjectsByUserId_shouldHandleOptionalWithNullValue() {
+        Long userId = 1L;
+        when(userProjectService.getUserProjectById(userId)).thenReturn(Optional.ofNullable(null));
+
+        ResponseEntity<Optional<UserProject>> response = userProjectController.getProjectsByUserId(userId);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertTrue(Objects.requireNonNull(response.getBody()).isEmpty());
+        verify(userProjectService).getUserProjectById(userId);
+    }
+
+    @Test
+    void getProjectsByUserId_shouldNotModifyProjectDataBeforeReturning() {
+        Long userId = 1L;
+        UserProject originalProject = new UserProject();
+        originalProject.setId(userId);
+        originalProject.setName("Original Project");
+        originalProject.setDescription("Original Description");
+
+        when(userProjectService.getUserProjectById(userId)).thenReturn(Optional.of(originalProject));
+
+        ResponseEntity<Optional<UserProject>> response = userProjectController.getProjectsByUserId(userId);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertTrue(Objects.requireNonNull(response.getBody()).isPresent());
+        UserProject returnedProject = response.getBody().get();
+        assertEquals(originalProject.getId(), returnedProject.getId());
+        assertEquals(originalProject.getName(), returnedProject.getName());
+        assertEquals(originalProject.getDescription(), returnedProject.getDescription());
+        assertSame(originalProject, returnedProject, "The returned project should be the same instance as the original");
+        verify(userProjectService).getUserProjectById(userId);
+    }
+
+    @Test
+    void getProjectsByUserId_shouldHandleInvalidUserIdFormat() {
+        String invalidUserId = "abc";
+
+        ResponseEntity<Optional<UserProject>> response = userProjectController.getProjectsByUserId(null);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNull(response.getBody());
+        verify(userProjectService, never()).getUserProjectById(any());
+    }
+
+    @Test
+    void getProjectsByUserId_shouldHandleHighVolumeConcurrentRequests() throws InterruptedException, ExecutionException {
+        int numberOfRequests = 1000;
+        CountDownLatch latch = new CountDownLatch(numberOfRequests);
+        ExecutorService executorService = Executors.newFixedThreadPool(10);
+        List<Future<ResponseEntity<Optional<UserProject>>>> futures = new ArrayList<>();
+
+        UserProject mockProject = new UserProject();
+        mockProject.setId(1L);
+        mockProject.setName("Test Project");
+        when(userProjectService.getUserProjectById(anyLong())).thenReturn(Optional.of(mockProject));
+
+        long startTime = System.currentTimeMillis();
+
+        for (int i = 0; i < numberOfRequests; i++) {
+            futures.add(executorService.submit(() -> {
+                ResponseEntity<Optional<UserProject>> response = userProjectController.getProjectsByUserId(1L);
+                latch.countDown();
+                return response;
+            }));
+        }
+
+        latch.await(10, TimeUnit.SECONDS);
+        long endTime = System.currentTimeMillis();
+
+        for (Future<ResponseEntity<Optional<UserProject>>> future : futures) {
+            ResponseEntity<Optional<UserProject>> response = future.get();
+            assertEquals(HttpStatus.OK, response.getStatusCode());
+            assertTrue(Objects.requireNonNull(response.getBody()).isPresent());
+        }
+
+        long duration = endTime - startTime;
+        assertTrue(duration < 5000, "High volume concurrent requests took too long: " + duration + "ms");
+
+        verify(userProjectService, times(numberOfRequests)).getUserProjectById(anyLong());
+        executorService.shutdown();
     }
 
 }
