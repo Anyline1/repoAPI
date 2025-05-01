@@ -567,7 +567,7 @@ class UserProjectControllerTest {
         ResponseEntity<Optional<UserProject>> response = userProjectController.getProjectsByUserId(userId);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertTrue(response.getBody().isPresent());
+        assertTrue(Objects.requireNonNull(response.getBody()).isPresent());
         UserProject actualProject = response.getBody().get();
         assertEquals(expectedProject.getId(), actualProject.getId());
         assertEquals(expectedProject.getName(), actualProject.getName());
