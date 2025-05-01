@@ -541,4 +541,17 @@ class UserProjectControllerTest {
         verify(userProjectService).getUserProjectById(userId);
     }
 
+    @Test
+    void getProjectsByUserId_shouldReturnBadRequestWhenUserIdIsNullOrNegative() {
+        ResponseEntity<Optional<UserProject>> responseNull = userProjectController.getProjectsByUserId(null);
+        assertEquals(HttpStatus.BAD_REQUEST, responseNull.getStatusCode());
+        assertNull(responseNull.getBody());
+
+        ResponseEntity<Optional<UserProject>> responseNegative = userProjectController.getProjectsByUserId(-1L);
+        assertEquals(HttpStatus.BAD_REQUEST, responseNegative.getStatusCode());
+        assertNull(responseNegative.getBody());
+
+        verify(userProjectService, never()).getUserProjectById(any());
+    }
+
 }
