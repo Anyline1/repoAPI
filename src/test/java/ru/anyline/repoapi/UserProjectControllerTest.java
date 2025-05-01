@@ -630,4 +630,15 @@ class UserProjectControllerTest {
         verify(userProjectService).getUserProjectById(userId);
     }
 
+    @Test
+    void getProjectsByUserId_shouldHandleInvalidUserIdFormat() {
+        String invalidUserId = "abc";
+
+        ResponseEntity<Optional<UserProject>> response = userProjectController.getProjectsByUserId(null);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNull(response.getBody());
+        verify(userProjectService, never()).getUserProjectById(any());
+    }
+
 }
