@@ -596,4 +596,16 @@ class UserProjectControllerTest {
         verify(userProjectService).getUserProjectById(veryLargeUserId);
     }
 
+    @Test
+    void getProjectsByUserId_shouldHandleOptionalWithNullValue() {
+        Long userId = 1L;
+        when(userProjectService.getUserProjectById(userId)).thenReturn(Optional.ofNullable(null));
+
+        ResponseEntity<Optional<UserProject>> response = userProjectController.getProjectsByUserId(userId);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertTrue(Objects.requireNonNull(response.getBody()).isEmpty());
+        verify(userProjectService).getUserProjectById(userId);
+    }
+
 }
