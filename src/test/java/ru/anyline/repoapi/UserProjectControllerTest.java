@@ -516,4 +516,16 @@ class UserProjectControllerTest {
         verify(userProjectService).deleteUserProject(1L);
     }
 
+    @Test
+    void getProjectsByUserId_shouldReturnOkStatusAndEmptyOptionalWhenNoProjectFound() {
+        Long userId = 1L;
+        when(userProjectService.getUserProjectById(userId)).thenReturn(Optional.empty());
+
+        ResponseEntity<Optional<UserProject>> response = userProjectController.getProjectsByUserId(userId);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertTrue(response.getBody().isEmpty());
+        verify(userProjectService).getUserProjectById(userId);
+    }
+
 }
