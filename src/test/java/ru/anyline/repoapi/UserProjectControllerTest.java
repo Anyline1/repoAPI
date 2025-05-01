@@ -667,7 +667,7 @@ class UserProjectControllerTest {
         for (Future<ResponseEntity<Optional<UserProject>>> future : futures) {
             ResponseEntity<Optional<UserProject>> response = future.get();
             assertEquals(HttpStatus.OK, response.getStatusCode());
-            assertTrue(response.getBody().isPresent());
+            assertTrue(Objects.requireNonNull(response.getBody()).isPresent());
         }
 
         long duration = endTime - startTime;
