@@ -554,4 +554,25 @@ class UserProjectControllerTest {
         verify(userProjectService, never()).getUserProjectById(any());
     }
 
+    @Test
+    void getProjectsByUserId_shouldReturnCorrectProjectData() {
+        Long userId = 1L;
+        UserProject expectedProject = new UserProject();
+        expectedProject.setId(userId);
+        expectedProject.setName("Test Project");
+        expectedProject.setDescription("Test Description");
+
+        when(userProjectService.getUserProjectById(userId)).thenReturn(Optional.of(expectedProject));
+
+        ResponseEntity<Optional<UserProject>> response = userProjectController.getProjectsByUserId(userId);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertTrue(response.getBody().isPresent());
+        UserProject actualProject = response.getBody().get();
+        assertEquals(expectedProject.getId(), actualProject.getId());
+        assertEquals(expectedProject.getName(), actualProject.getName());
+        assertEquals(expectedProject.getDescription(), actualProject.getDescription());
+        verify(userProjectService).getUserProjectById(userId);
+    }
+
 }
