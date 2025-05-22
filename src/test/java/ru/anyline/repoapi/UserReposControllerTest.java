@@ -20,7 +20,7 @@ class UserReposControllerTest {
 
     private RestTemplate restTemplate;
 
-    private Model model;
+    private final Model model;
 
     private UserReposController userReposController;
 
